@@ -5,10 +5,10 @@ using System.Text;
 
 namespace ArduinoCommunicator
 {
-    public class MonoSerialDataReceivedEventArgs : EventArgs
+    public class SerialPortNETDataReceivedEventArgs : EventArgs
     {
         public SerialData EventType { get; private set; }        
-        public MonoSerialDataReceivedEventArgs(SerialData eventType)
+        public SerialPortNETDataReceivedEventArgs(SerialData eventType)
         {
             EventType = eventType;
         }

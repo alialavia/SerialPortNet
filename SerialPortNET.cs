@@ -11,7 +11,7 @@ namespace ArduinoCommunicator
     /// <summary>
     /// Mono implementation of SerialPort is incomplete. This is to make up for that.
     /// </summary>
-    public class MonoSerialPort : IDisposable
+    public class SerialPortNET : IDisposable
     {
         #region Public Fields
 
@@ -21,7 +21,7 @@ namespace ArduinoCommunicator
 
         #region Public Constructors
 
-        public MonoSerialPort(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
+        public SerialPortNET(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
         {
             // Do some basic settings
             this.IsOpen = false;
@@ -37,7 +37,7 @@ namespace ArduinoCommunicator
 
         #region Public Events
 
-        public event EventHandler<MonoSerialDataReceivedEventArgs> DataReceived;
+        public event EventHandler<SerialPortNETDataReceivedEventArgs> DataReceived;
 
         #endregion Public Events
 
@@ -185,9 +185,9 @@ namespace ArduinoCommunicator
 
         protected virtual void OnDataReceived()
         {
-            EventHandler<MonoSerialDataReceivedEventArgs> handler = DataReceived;
+            EventHandler<SerialPortNETDataReceivedEventArgs> handler = DataReceived;
             if (handler != null)
-                handler(this, new MonoSerialDataReceivedEventArgs(SerialData.Chars));
+                handler(this, new SerialPortNETDataReceivedEventArgs(SerialData.Chars));
         }
 
         #endregion Protected Methods
