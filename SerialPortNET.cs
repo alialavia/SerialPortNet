@@ -179,6 +179,11 @@ namespace ArduinoCommunicator
                 throw new IOException("Write returned error :" + new Win32Exception((int)Win32File.GetLastError()).Message);
         }
 
+        public void WriteAll(byte[] buffer)
+        {
+            Write(buffer, 0, buffer.Length);
+        }
+
         #endregion Public Methods
 
         #region Protected Methods
