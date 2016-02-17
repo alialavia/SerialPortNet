@@ -91,11 +91,14 @@ namespace ArduinoCommunicator
             IsOpen = true;
         }
 
-        public void Read(byte[] buffer, int offset, int count)
+        public void Read(byte[] buffer, int offset, int count, bool blocking = true)
         {
             //serialStream.Read(buffer, offset, count); ;
             uint bytesRead = 0;
             byte[] unoffsetedBuffer = new byte[count];
+            if (blocking)
+                while (this.BytesToRead < count) ;
+
             bool success = NativeMethods.ReadFile(serialHandle, unoffsetedBuffer, (uint)count, out bytesRead, IntPtr.Zero);
             if (!success)
                 throw new IOException("Read returned error :" + new Win32Exception((int)NativeMethods.GetLastError()).Message);
@@ -242,6 +245,7 @@ namespace ArduinoCommunicator
 
         #region Public Fields
 
+        public readonly string portName;
         public bool Async = true;
 
         #endregion Public Fields
@@ -256,7 +260,6 @@ namespace ArduinoCommunicator
         private int dataBits;
         private bool disposed;
         private Parity parity;
-        private string portName;
 
         //FileStream serialStream;
         private SafeFileHandle serialHandle;
