@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Ports;
 using System.Runtime.InteropServices;
@@ -13,12 +14,6 @@ namespace ArduinoCommunicator
     /// </summary>
     public class SerialPortNET : IDisposable
     {
-        #region Public Fields
-
-        public bool Async = true;
-
-        #endregion Public Fields
-
         #region Public Constructors
 
         public SerialPortNET(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
@@ -34,36 +29,6 @@ namespace ArduinoCommunicator
         }
 
         #endregion Public Constructors
-
-        #region Public Events
-
-        public event EventHandler<SerialPortNETDataReceivedEventArgs> DataReceived;
-
-        #endregion Public Events
-
-        #region Public Properties
-
-        public int BytesToRead
-        {
-            get
-            {
-                return (int)getStats().cbInQue;
-            }
-        }
-
-        public int BytesToWrite
-        {
-            get
-            {
-                return (int)getStats().cbOutQue;
-            }
-        }
-
-        public bool IsOpen { private set; get; }
-        public bool IsRunning { private set; get; }
-        public int ReceivedBytesThreshold { get; set; }
-
-        #endregion Public Properties
 
         #region Public Methods
 
@@ -82,25 +47,26 @@ namespace ArduinoCommunicator
 
         public void Close()
         {
-            Win32File.CloseHandle(serialHandle);
+            Dispose();
+            //NativeMethods.CloseHandle(serialHandle);
         }
 
         public void Dispose()
         {
-            if (!serialHandle.IsClosed)
-                Close();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public void Open()
         {
-            serialHandle = Win32File.CreateFile("\\\\.\\" + this.portName, (uint)(EFileAccess.FILE_GENERIC_READ | EFileAccess.FILE_GENERIC_WRITE), 0, IntPtr.Zero, (uint)ECreationDisposition.OpenExisting, (uint)EFileAttributes.Normal, IntPtr.Zero);
+            serialHandle = NativeMethods.CreateFile("\\\\.\\" + this.portName, (uint)(EFileAccess.FILE_GENERIC_READ | EFileAccess.FILE_GENERIC_WRITE), 0, IntPtr.Zero, (uint)ECreationDisposition.OpenExisting, (uint)EFileAttributes.Normal, IntPtr.Zero);
             if (serialHandle.IsInvalid)
                 throw new IOException("Cannot open " + this.portName);
 
             DCB serialParams = new DCB();
             serialParams.DCBLength = (uint)Marshal.SizeOf(serialParams);
 
-            if (!Win32File.GetCommState(serialHandle, ref serialParams))
+            if (!NativeMethods.GetCommState(serialHandle, ref serialParams))
                 throw new IOException("GetCommState error!");
 
             serialParams.BaudRate = (uint)this.baudRate;
@@ -108,7 +74,7 @@ namespace ArduinoCommunicator
             serialParams.StopBits = this.stopBits;
             serialParams.Parity = this.parity;
             serialParams.DtrControl = DtrControl.Enable;
-            if (!Win32File.SetCommState(serialHandle, ref serialParams))
+            if (!NativeMethods.SetCommState(serialHandle, ref serialParams))
                 throw new IOException("SetCommState error!");
 
             COMMTIMEOUTS timeout = new COMMTIMEOUTS();
@@ -118,10 +84,10 @@ namespace ArduinoCommunicator
             timeout.WriteTotalTimeoutConstant = 50;
             timeout.WriteTotalTimeoutMultiplier = 10;
 
-            if (!Win32File.SetCommTimeouts(serialHandle, ref timeout))
+            if (!NativeMethods.SetCommTimeouts(serialHandle, ref timeout))
                 throw new IOException("SetCommTimeouts error!");
 
-            Win32File.PurgeComm(serialHandle, (uint)(0xF));
+            NativeMethods.PurgeComm(serialHandle, (uint)(0xF));
             IsOpen = true;
         }
 
@@ -129,9 +95,12 @@ namespace ArduinoCommunicator
         {
             //serialStream.Read(buffer, offset, count); ;
             uint bytesRead = 0;
-            bool success = Win32File.ReadFile(serialHandle, buffer, (uint)count, out bytesRead, IntPtr.Zero);
+            byte[] unoffsetedBuffer = new byte[count];
+            bool success = NativeMethods.ReadFile(serialHandle, unoffsetedBuffer, (uint)count, out bytesRead, IntPtr.Zero);
             if (!success)
-                throw new IOException("Read returned error :" + new Win32Exception((int)Win32File.GetLastError()).Message);
+                throw new IOException("Read returned error :" + new Win32Exception((int)NativeMethods.GetLastError()).Message);
+
+            unoffsetedBuffer.CopyTo(buffer, offset);
         }
 
         public byte[] ReadAll()
@@ -171,12 +140,15 @@ namespace ArduinoCommunicator
 
         public void Write(byte[] buffer, int offset, int count)
         {
+            if (count != 4)
+                Debugger.Break();
             //serialStream.Write(buffer, offset, count);
             uint bytesWrote = 0;
-
-            bool success = Win32File.WriteFile(serialHandle, buffer, (uint)count, out bytesWrote, IntPtr.Zero);
+            byte[] offsetedBuffer = new byte[count];
+            buffer.CopyTo(offsetedBuffer, offset);
+            bool success = NativeMethods.WriteFile(serialHandle, offsetedBuffer, (uint)count, out bytesWrote, IntPtr.Zero);
             if (!success)
-                throw new IOException("Write returned error :" + new Win32Exception((int)Win32File.GetLastError()).Message);
+                throw new IOException("Write returned error :" + new Win32Exception((int)NativeMethods.GetLastError()).Message);
         }
 
         public void WriteAll(byte[] buffer)
@@ -188,6 +160,19 @@ namespace ArduinoCommunicator
 
         #region Protected Methods
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                serialHandle.Dispose();
+            }
+
+            disposed = true;
+        }
+
         protected virtual void OnDataReceived()
         {
             EventHandler<SerialPortNETDataReceivedEventArgs> handler = DataReceived;
@@ -196,22 +181,6 @@ namespace ArduinoCommunicator
         }
 
         #endregion Protected Methods
-
-        #region Private Fields
-
-        private int baudRate;
-        // For async operation
-        private BackgroundWorker bgWorker = new BackgroundWorker();
-
-        private int dataBits;
-        private Parity parity;
-        private string portName;
-        //FileStream serialStream;
-        private SafeFileHandle serialHandle;
-
-        private StopBits stopBits;
-
-        #endregion Private Fields
 
         #region Private Methods
 
@@ -230,14 +199,70 @@ namespace ArduinoCommunicator
         {
             throw new NotImplementedException();
         }
+
         private COMSTAT getStats()
         {
             uint flags = 0;
             COMSTAT stats = new COMSTAT();
-            Win32File.ClearCommError(serialHandle, out flags, out stats);
+            NativeMethods.ClearCommError(serialHandle, out flags, out stats);
             return stats;
         }
 
         #endregion Private Methods
+
+        #region Public Events
+
+        public event EventHandler<SerialPortNETDataReceivedEventArgs> DataReceived;
+
+        #endregion Public Events
+
+        #region Public Properties
+
+        public int BytesToRead
+        {
+            get
+            {
+                return (int)getStats().cbInQue;
+            }
+        }
+
+        public int BytesToWrite
+        {
+            get
+            {
+                return (int)getStats().cbOutQue;
+            }
+        }
+
+        public bool IsOpen { private set; get; }
+        public bool IsRunning { private set; get; }
+        public int ReceivedBytesThreshold { get; set; }
+
+        #endregion Public Properties
+
+        #region Public Fields
+
+        public bool Async = true;
+
+        #endregion Public Fields
+
+        #region Private Fields
+
+        private int baudRate;
+
+        // For async operation
+        private BackgroundWorker bgWorker = new BackgroundWorker();
+
+        private int dataBits;
+        private bool disposed;
+        private Parity parity;
+        private string portName;
+
+        //FileStream serialStream;
+        private SafeFileHandle serialHandle;
+
+        private StopBits stopBits;
+
+        #endregion Private Fields
     }
 }

@@ -8,6 +8,57 @@ using Microsoft.Win32.SafeHandles;
 
 namespace ArduinoCommunicator
 {
+    public enum DtrControl : int
+    {
+        /// <summary>
+        /// Disables the DTR line when the device is opened and leaves it disabled.
+        /// </summary>
+        Disable = 0,
+
+        /// <summary>
+        /// Enables the DTR line when the device is opened and leaves it on.
+        /// </summary>
+        Enable = 1,
+
+        /// <summary>
+        /// Enables DTR handshaking. If handshaking is enabled, it is an error for the application to adjust the line by
+        /// using the EscapeCommFunction function.
+        /// </summary>
+        Handshake = 2
+    }
+
+    public enum ECreationDisposition : uint
+    {
+        /// <summary>
+        /// Creates a new file. The function fails if a specified file exists.
+        /// </summary>
+        New = 1,
+
+        /// <summary>
+        /// Creates a new file, always.
+        /// If a file exists, the function overwrites the file, clears the existing attributes, combines the specified file attributes,
+        /// and flags with FILE_ATTRIBUTE_ARCHIVE, but does not set the security descriptor that the SECURITY_ATTRIBUTES structure specifies.
+        /// </summary>
+        CreateAlways = 2,
+
+        /// <summary>
+        /// Opens a file. The function fails if the file does not exist.
+        /// </summary>
+        OpenExisting = 3,
+
+        /// <summary>
+        /// Opens a file, always.
+        /// If a file does not exist, the function creates a file as if dwCreationDisposition is CREATE_NEW.
+        /// </summary>
+        OpenAlways = 4,
+
+        /// <summary>
+        /// Opens a file and truncates it so that its size is 0 (zero) bytes. The function fails if the file does not exist.
+        /// The calling process must open the file with the GENERIC_WRITE access right.
+        /// </summary>
+        TruncateExisting = 5
+    }
+
     [Flags]
     public enum EFileAccess : uint
     {
@@ -56,6 +107,7 @@ namespace ArduinoCommunicator
         GenericAll = 0x10000000,
 
         SPECIFIC_RIGHTS_ALL = 0x00FFFF,
+
         FILE_ALL_ACCESS =
         StandardRightsRequired |
         Synchronize |
@@ -81,61 +133,6 @@ namespace ArduinoCommunicator
           FILE_READ_ATTRIBUTES |
           FILE_EXECUTE |
           Synchronize
-    }
-
-    [Flags]
-    public enum EFileShare : uint
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        None = 0x00000000,
-        /// <summary>
-        /// Enables subsequent open operations on an object to request read access. 
-        /// Otherwise, other processes cannot open the object if they request read access. 
-        /// If this flag is not specified, but the object has been opened for read access, the function fails.
-        /// </summary>
-        Read = 0x00000001,
-        /// <summary>
-        /// Enables subsequent open operations on an object to request write access. 
-        /// Otherwise, other processes cannot open the object if they request write access. 
-        /// If this flag is not specified, but the object has been opened for write access, the function fails.
-        /// </summary>
-        Write = 0x00000002,
-        /// <summary>
-        /// Enables subsequent open operations on an object to request delete access. 
-        /// Otherwise, other processes cannot open the object if they request delete access.
-        /// If this flag is not specified, but the object has been opened for delete access, the function fails.
-        /// </summary>
-        Delete = 0x00000004
-    }
-
-    public enum ECreationDisposition : uint
-    {
-        /// <summary>
-        /// Creates a new file. The function fails if a specified file exists.
-        /// </summary>
-        New = 1,
-        /// <summary>
-        /// Creates a new file, always. 
-        /// If a file exists, the function overwrites the file, clears the existing attributes, combines the specified file attributes, 
-        /// and flags with FILE_ATTRIBUTE_ARCHIVE, but does not set the security descriptor that the SECURITY_ATTRIBUTES structure specifies.
-        /// </summary>
-        CreateAlways = 2,
-        /// <summary>
-        /// Opens a file. The function fails if the file does not exist. 
-        /// </summary>
-        OpenExisting = 3,
-        /// <summary>
-        /// Opens a file, always. 
-        /// If a file does not exist, the function creates a file as if dwCreationDisposition is CREATE_NEW.
-        /// </summary>
-        OpenAlways = 4,
-        /// <summary>
-        /// Opens a file and truncates it so that its size is 0 (zero) bytes. The function fails if the file does not exist.
-        /// The calling process must open the file with the GENERIC_WRITE access right. 
-        /// </summary>
-        TruncateExisting = 5
     }
 
     [Flags]
@@ -166,15 +163,6 @@ namespace ArduinoCommunicator
         OpenReparsePoint = 0x00200000,
         OpenNoRecall = 0x00100000,
         FirstPipeInstance = 0x00080000
-    }
-
-    [Flags]
-    public enum EMethod : uint
-    {
-        Buffered = 0,
-        InDirect = 1,
-        OutDirect = 2,
-        Neither = 3
     }
 
     [Flags]
@@ -237,8 +225,10 @@ namespace ArduinoCommunicator
         Serenum = 0x00000037,
         Termsrv = 0x00000038,
         Ksec = 0x00000039,
+
         // From Windows Driver Kit 7
         Fips = 0x0000003A,
+
         Infiniband = 0x0000003B,
         Vmbus = 0x0000003E,
         CryptProvider = 0x0000003F,
@@ -248,6 +238,36 @@ namespace ArduinoCommunicator
         MtTransport = 0x00000043,
         Biometric = 0x00000044,
         Pmi = 0x00000045
+    }
+
+    [Flags]
+    public enum EFileShare : uint
+    {
+        /// <summary>
+        ///
+        /// </summary>
+        None = 0x00000000,
+
+        /// <summary>
+        /// Enables subsequent open operations on an object to request read access.
+        /// Otherwise, other processes cannot open the object if they request read access.
+        /// If this flag is not specified, but the object has been opened for read access, the function fails.
+        /// </summary>
+        Read = 0x00000001,
+
+        /// <summary>
+        /// Enables subsequent open operations on an object to request write access.
+        /// Otherwise, other processes cannot open the object if they request write access.
+        /// If this flag is not specified, but the object has been opened for write access, the function fails.
+        /// </summary>
+        Write = 0x00000002,
+
+        /// <summary>
+        /// Enables subsequent open operations on an object to request delete access.
+        /// Otherwise, other processes cannot open the object if they request delete access.
+        /// If this flag is not specified, but the object has been opened for delete access, the function fails.
+        /// </summary>
+        Delete = 0x00000004
     }
 
     /// <summary>
@@ -261,6 +281,7 @@ namespace ArduinoCommunicator
     {
         // STORAGE
         StorageCheckVerify = (EFileDevice.MassStorage << 16) | (0x0200 << 2) | EMethod.Buffered | (FileAccess.Read << 14),
+
         StorageCheckVerify2 = (EFileDevice.MassStorage << 16) | (0x0200 << 2) | EMethod.Buffered | (0 << 14), // FileAccess.Any
         StorageMediaRemoval = (EFileDevice.MassStorage << 16) | (0x0201 << 2) | EMethod.Buffered | (FileAccess.Read << 14),
         StorageEjectMedia = (EFileDevice.MassStorage << 16) | (0x0202 << 2) | EMethod.Buffered | (FileAccess.Read << 14),
@@ -280,8 +301,10 @@ namespace ArduinoCommunicator
         StorageObsoleteResetBus = (EFileDevice.MassStorage << 16) | (0x0400 << 2) | EMethod.Buffered | (FileAccess.ReadWrite << 14),
         StorageObsoleteResetDevice = (EFileDevice.MassStorage << 16) | (0x0401 << 2) | EMethod.Buffered | (FileAccess.ReadWrite << 14),
         StorageQueryProperty = (EFileDevice.MassStorage << 16) | (0x0500 << 2) | EMethod.Buffered | (0 << 14),
+
         // DISK
         DiskGetDriveGeometry = (EFileDevice.Disk << 16) | (0x0000 << 2) | EMethod.Buffered | (0 << 14),
+
         DiskGetDriveGeometryEx = (EFileDevice.Disk << 16) | (0x0028 << 2) | EMethod.Buffered | (0 << 14),
         DiskGetPartitionInfo = (EFileDevice.Disk << 16) | (0x0001 << 2) | EMethod.Buffered | (FileAccess.Read << 14),
         DiskGetPartitionInfoEx = (EFileDevice.Disk << 16) | (0x0012 << 2) | EMethod.Buffered | (0 << 14),
@@ -324,8 +347,10 @@ namespace ArduinoCommunicator
         DiskSetDriveLayoutEx = (EFileDevice.Disk << 16) | (0x0015 << 2) | EMethod.Buffered | (FileAccess.ReadWrite << 14),
         DiskCreateDisk = (EFileDevice.Disk << 16) | (0x0016 << 2) | EMethod.Buffered | (FileAccess.ReadWrite << 14),
         DiskGetLengthInfo = (EFileDevice.Disk << 16) | (0x0017 << 2) | EMethod.Buffered | (FileAccess.Read << 14),
+
         // CHANGER
         ChangerGetParameters = (EFileDevice.Changer << 16) | (0x0000 << 2) | EMethod.Buffered | (FileAccess.Read << 14),
+
         ChangerGetStatus = (EFileDevice.Changer << 16) | (0x0001 << 2) | EMethod.Buffered | (FileAccess.Read << 14),
         ChangerGetProductData = (EFileDevice.Changer << 16) | (0x0002 << 2) | EMethod.Buffered | (FileAccess.Read << 14),
         ChangerSetAccess = (EFileDevice.Changer << 16) | (0x0004 << 2) | EMethod.Buffered | (FileAccess.ReadWrite << 14),
@@ -336,8 +361,10 @@ namespace ArduinoCommunicator
         ChangerMoveMedium = (EFileDevice.Changer << 16) | (0x0009 << 2) | EMethod.Buffered | (FileAccess.Read << 14),
         ChangerReinitializeTarget = (EFileDevice.Changer << 16) | (0x000A << 2) | EMethod.Buffered | (FileAccess.Read << 14),
         ChangerQueryVolumeTags = (EFileDevice.Changer << 16) | (0x000B << 2) | EMethod.Buffered | (FileAccess.ReadWrite << 14),
+
         // FILESYSTEM
         FsctlRequestOplockLevel1 = (EFileDevice.FileSystem << 16) | (0 << 2) | EMethod.Buffered | (0 << 14),
+
         FsctlRequestOplockLevel2 = (EFileDevice.FileSystem << 16) | (1 << 2) | EMethod.Buffered | (0 << 14),
         FsctlRequestBatchOplock = (EFileDevice.FileSystem << 16) | (2 << 2) | EMethod.Buffered | (0 << 14),
         FsctlOplockBreakAcknowledge = (EFileDevice.FileSystem << 16) | (3 << 2) | EMethod.Buffered | (0 << 14),
@@ -403,20 +430,88 @@ namespace ArduinoCommunicator
         FsctlHsmData = (EFileDevice.FileSystem << 16) | (68 << 2) | EMethod.Neither | (FileAccess.ReadWrite << 14),
         FsctlRecallFile = (EFileDevice.FileSystem << 16) | (69 << 2) | EMethod.Neither | (0 << 14),
         FsctlNssRcontrol = (EFileDevice.FileSystem << 16) | (70 << 2) | EMethod.Buffered | (FileAccess.Read << 14),
+
         // VIDEO
         VideoQuerySupportedBrightness = (EFileDevice.Video << 16) | (0x0125 << 2) | EMethod.Buffered | (0 << 14),
+
         VideoQueryDisplayBrightness = (EFileDevice.Video << 16) | (0x0126 << 2) | EMethod.Buffered | (0 << 14),
         VideoSetDisplayBrightness = (EFileDevice.Video << 16) | (0x0127 << 2) | EMethod.Buffered | (0 << 14)
     }
 
+    [Flags]
+    public enum EMethod : uint
+    {
+        Buffered = 0,
+        InDirect = 1,
+        OutDirect = 2,
+        Neither = 3
+    }
+
+    public enum Parity : byte
+    {
+        None = 0,
+        Odd = 1,
+        Even = 2,
+        Mark = 3,
+        Space = 4,
+    }
+
+    [Flags]
+    public enum PurgeFlags : uint
+    {
+        TxAbort = 0x0001,  // Kill the pending/current writes to the comm port.
+        RxAbort = 0x0002,  // Kill the pending/current reads to the comm port.
+        TxClear = 0x0004,  // Kill the transmit queue if there.
+        RxClear = 0x0008  // Kill the typeahead buffer if there.
+    }
+
+    public enum RtsControl : int
+    {
+        /// <summary>
+        /// Disables the RTS line when the device is opened and leaves it disabled.
+        /// </summary>
+        Disable = 0,
+
+        /// <summary>
+        /// Enables the RTS line when the device is opened and leaves it on.
+        /// </summary>
+        Enable = 1,
+
+        /// <summary>
+        /// Enables RTS handshaking. The driver raises the RTS line when the "type-ahead" (input) buffer
+        /// is less than one-half full and lowers the RTS line when the buffer is more than
+        /// three-quarters full. If handshaking is enabled, it is an error for the application to
+        /// adjust the line by using the EscapeCommFunction function.
+        /// </summary>
+        Handshake = 2,
+
+        /// <summary>
+        /// Specifies that the RTS line will be high if bytes are available for transmission. After
+        /// all buffered bytes have been sent, the RTS line will be low.
+        /// </summary>
+        Toggle = 3
+    }
+
+    public enum StopBits : byte
+    {
+        One = 0,
+        OnePointFive = 1,
+        Two = 2
+    }
+
     public struct COMMTIMEOUTS
     {
+        #region Public Fields
+
         public UInt32 ReadIntervalTimeout;
-        public UInt32 ReadTotalTimeoutMultiplier;
         public UInt32 ReadTotalTimeoutConstant;
-        public UInt32 WriteTotalTimeoutMultiplier;
+        public UInt32 ReadTotalTimeoutMultiplier;
         public UInt32 WriteTotalTimeoutConstant;
+        public UInt32 WriteTotalTimeoutMultiplier;
+
+        #endregion Public Fields
     }
+
     [StructLayout(LayoutKind.Sequential)]
     public struct COMSTAT
     {
@@ -432,92 +527,6 @@ namespace ArduinoCommunicator
         public UInt32 cbOutQue;
     }
 
-    [Flags]
-    public enum PurgeFlags: uint
-    {
-        TxAbort = 0x0001,  // Kill the pending/current writes to the comm port.
-        RxAbort = 0x0002,  // Kill the pending/current reads to the comm port.
-        TxClear = 0x0004,  // Kill the transmit queue if there.
-        RxClear = 0x0008  // Kill the typeahead buffer if there.
-    }
-
-    public static class Win32File
-    {
-        [DllImport("kernel32.dll")]
-        public static extern bool PurgeComm(SafeFileHandle hFile, uint dwFlags);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto,
-            CallingConvention = CallingConvention.StdCall,
-            SetLastError = true)]
-        public static extern SafeFileHandle CreateFile(
-                string lpFileName,
-                uint dwDesiredAccess,
-                uint dwShareMode,
-                IntPtr SecurityAttributes,
-                uint dwCreationDisposition,
-                uint dwFlagsAndAttributes,
-                IntPtr hTemplateFile
-            );
-
-        [DllImport("kernel32.dll")]
-        public static extern bool WriteFile(
-            SafeFileHandle hFile, byte[] lpBuffer,
-            uint nNumberOfBytesToWrite, out uint lpNumberOfBytesWritten,
-            [In] ref System.Threading.NativeOverlapped lpOverlapped);
-
-        [DllImport("kernel32.dll")]
-        public static extern bool WriteFile(
-            SafeFileHandle hFile, byte[] lpBuffer,
-            uint nNumberOfBytesToWrite, out uint lpNumberOfBytesWritten,
-            IntPtr lpOverlapped);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool ReadFile(
-            SafeFileHandle hFile,
-            [Out] byte[] lpBuffer,
-            uint nNumberOfBytesToRead,
-            out uint lpNumberOfBytesRead,
-            IntPtr lpOverlapped);
-
-        [DllImport("kernel32.dll")]
-        public static extern bool GetCommState(SafeFileHandle hFile, ref DCB lpDCB);
-
-
-        [DllImport("kernel32.dll")]
-        public static extern bool SetCommState(SafeFileHandle hFile, ref DCB lpDCB);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool SetCommTimeouts(SafeFileHandle hFile, [In] ref COMMTIMEOUTS lpCommTimeouts);
-
-        [DllImport("Kernel32.dll", SetLastError = false, CharSet = CharSet.Auto)]
-        public static extern bool DeviceIoControl(
-            SafeFileHandle hDevice,
-            EIOControlCode IoControlCode,
-            [MarshalAs(UnmanagedType.AsAny)]
-            [In] object InBuffer,
-            uint nInBufferSize,
-            [MarshalAs(UnmanagedType.AsAny)]
-            [Out] object OutBuffer,
-            uint nOutBufferSize,
-            ref uint pBytesReturned,
-            [In] IntPtr Overlapped
-        );
-
-        [DllImport("kernel32.dll")]
-        public static extern bool ClearCommError(
-            [In] SafeFileHandle hFile, // not int, convert int to IntPtr: new IntPtr(12)
-            [Out, Optional] out uint lpErrors,
-            [Out, Optional] out COMSTAT lpStat
-        );
-
-        [DllImport("kernel32.dll")]
-        public static extern uint GetLastError();
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool CloseHandle(SafeFileHandle hObject);
-    }
-
     [StructLayout(LayoutKind.Sequential)]
     public struct DCB
     {
@@ -525,20 +534,20 @@ namespace ArduinoCommunicator
         internal uint BaudRate;
         private BitVector32 Flags;
 
-        private ushort wReserved;        // not currently used 
-        internal ushort XonLim;           // transmit XON threshold 
-        internal ushort XoffLim;          // transmit XOFF threshold             
+        private ushort wReserved;        // not currently used
+        internal ushort XonLim;           // transmit XON threshold
+        internal ushort XoffLim;          // transmit XOFF threshold
 
         internal byte ByteSize;
         internal Parity Parity;
         internal StopBits StopBits;
 
-        internal sbyte XonChar;          // Tx and Rx XON character 
-        internal sbyte XoffChar;         // Tx and Rx XOFF character 
-        internal sbyte ErrorChar;        // error replacement character 
-        internal sbyte EofChar;          // end of input character 
-        internal sbyte EvtChar;          // received event character 
-        private ushort wReserved1;       // reserved; do not use     
+        internal sbyte XonChar;          // Tx and Rx XON character
+        internal sbyte XoffChar;         // Tx and Rx XOFF character
+        internal sbyte ErrorChar;        // error replacement character
+        internal sbyte EofChar;          // end of input character
+        internal sbyte EvtChar;          // received event character
+        private ushort wReserved1;       // reserved; do not use
 
         private static readonly int fBinary;
         private static readonly int fParity;
@@ -670,65 +679,83 @@ namespace ArduinoCommunicator
         }
     }
 
-    public enum Parity : byte
+    internal static class NativeMethods
     {
-        None = 0,
-        Odd = 1,
-        Even = 2,
-        Mark = 3,
-        Space = 4,
-    }
+        #region Internal Methods
 
-    public enum StopBits : byte
-    {
-        One = 0,
-        OnePointFive = 1,
-        Two = 2
-    }
+        [DllImport("kernel32.dll")]
+        internal static extern bool ClearCommError(
+            [In] SafeFileHandle hFile, // not int, convert int to IntPtr: new IntPtr(12)
+            [Out, Optional] out uint lpErrors,
+            [Out, Optional] out COMSTAT lpStat
+        );
 
-    public enum DtrControl : int
-    {
-        /// <summary>
-        /// Disables the DTR line when the device is opened and leaves it disabled.
-        /// </summary>
-        Disable = 0,
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool CloseHandle(SafeFileHandle hObject);
 
-        /// <summary>
-        /// Enables the DTR line when the device is opened and leaves it on.
-        /// </summary>
-        Enable = 1,
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto,
+            CallingConvention = CallingConvention.StdCall,
+            SetLastError = true)]
+        internal static extern SafeFileHandle CreateFile(
+                string lpFileName,
+                uint dwDesiredAccess,
+                uint dwShareMode,
+                IntPtr SecurityAttributes,
+                uint dwCreationDisposition,
+                uint dwFlagsAndAttributes,
+                IntPtr hTemplateFile
+            );
 
-        /// <summary>
-        /// Enables DTR handshaking. If handshaking is enabled, it is an error for the application to adjust the line by 
-        /// using the EscapeCommFunction function.
-        /// </summary>
-        Handshake = 2
-    }
+        [DllImport("Kernel32.dll", SetLastError = false, CharSet = CharSet.Auto)]
+        internal static extern bool DeviceIoControl(
+            SafeFileHandle hDevice,
+            EIOControlCode IoControlCode,
+            [MarshalAs(UnmanagedType.AsAny)]
+            [In] object InBuffer,
+            uint nInBufferSize,
+            [MarshalAs(UnmanagedType.AsAny)]
+            [Out] object OutBuffer,
+            uint nOutBufferSize,
+            ref uint pBytesReturned,
+            [In] IntPtr Overlapped
+        );
 
-    public enum RtsControl : int
-    {
-        /// <summary>
-        /// Disables the RTS line when the device is opened and leaves it disabled.
-        /// </summary>
-        Disable = 0,
+        [DllImport("kernel32.dll")]
+        internal static extern bool GetCommState(SafeFileHandle hFile, ref DCB lpDCB);
 
-        /// <summary>
-        /// Enables the RTS line when the device is opened and leaves it on.
-        /// </summary>
-        Enable = 1,
+        [DllImport("kernel32.dll")]
+        internal static extern uint GetLastError();
 
-        /// <summary>
-        /// Enables RTS handshaking. The driver raises the RTS line when the "type-ahead" (input) buffer 
-        /// is less than one-half full and lowers the RTS line when the buffer is more than
-        /// three-quarters full. If handshaking is enabled, it is an error for the application to 
-        /// adjust the line by using the EscapeCommFunction function.
-        /// </summary>
-        Handshake = 2,
+        [DllImport("kernel32.dll")]
+        internal static extern bool PurgeComm(SafeFileHandle hFile, uint dwFlags);
 
-        /// <summary>
-        /// Specifies that the RTS line will be high if bytes are available for transmission. After 
-        /// all buffered bytes have been sent, the RTS line will be low.
-        /// </summary>
-        Toggle = 3
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern bool ReadFile(
+            SafeFileHandle hFile,
+            [Out] byte[] lpBuffer,
+            uint nNumberOfBytesToRead,
+            out uint lpNumberOfBytesRead,
+            IntPtr lpOverlapped);
+
+        [DllImport("kernel32.dll")]
+        internal static extern bool SetCommState(SafeFileHandle hFile, ref DCB lpDCB);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern bool SetCommTimeouts(SafeFileHandle hFile, [In] ref COMMTIMEOUTS lpCommTimeouts);
+
+        [DllImport("kernel32.dll")]
+        internal static extern bool WriteFile(
+            SafeFileHandle hFile, byte[] lpBuffer,
+            uint nNumberOfBytesToWrite, out uint lpNumberOfBytesWritten,
+            [In] ref System.Threading.NativeOverlapped lpOverlapped);
+
+        [DllImport("kernel32.dll")]
+        internal static extern bool WriteFile(
+            SafeFileHandle hFile, byte[] lpBuffer,
+            uint nNumberOfBytesToWrite, out uint lpNumberOfBytesWritten,
+            IntPtr lpOverlapped);
+
+        #endregion Internal Methods
     }
 }
