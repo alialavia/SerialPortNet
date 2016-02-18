@@ -91,13 +91,13 @@ namespace ArduinoCommunicator
             IsOpen = true;
         }
 
-        public void Read(byte[] buffer, int offset, int count, bool blocking = true)
+        public void Read(byte[] buffer, int offset, int count)
         {
             //serialStream.Read(buffer, offset, count); ;
             uint bytesRead = 0;
             byte[] unoffsetedBuffer = new byte[count];
-            if (blocking)
-                while (this.BytesToRead < count) ;
+            /*if (blocking)
+                while (this.BytesToRead < count) ;*/
 
             bool success = NativeMethods.ReadFile(serialHandle, unoffsetedBuffer, (uint)count, out bytesRead, IntPtr.Zero);
             if (!success)
