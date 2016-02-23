@@ -7,31 +7,45 @@ using System.IO.Ports;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-namespace ArduinoCommunicator
+namespace SerialPortNET
 {
     /// <summary>
     /// Mono implementation of SerialPort is incomplete. This is to make up for that.
     /// </summary>
-    public class SerialPortNET : IDisposable
+    public class SerialPort : IDisposable
     {
         #region Public Constructors
 
-        public SerialPortNET(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
+        /// <summary>
+        /// Creates a new Serial Port
+        /// </summary>
+        /// <param name="portName">Name of the port (COM1, ...)</param>
+        /// <param name="baudRate">Baud rate (9600, 115200, ...) </param>
+        /// <param name="parity">Parity</param>
+        /// <param name="dataBits">Number of data bits (7, 8, ...)</param>
+        /// <param name="stopBits">Stop bits</param>
+        public SerialPort(string portName, int baudRate, Parity parity, byte dataBits, StopBits stopBits)
         {
             // Do some basic settings
             this.IsOpen = false;
             this.IsRunning = false;
-            this.portName = portName;
-            this.baudRate = baudRate;
-            this.parity = parity;
-            this.dataBits = dataBits;
-            this.stopBits = stopBits;
+            this.PortName = portName;
+            this.BaudRate = baudRate;
+            this.Parity = parity;
+            this.DataBits = dataBits;
+            this.StopBits = stopBits;
+
+            this.DtrControl = DtrControl.Enable; // Default
         }
 
         #endregion Public Constructors
 
         #region Public Methods
 
+        /// <summary>
+        /// Enumerate all the serial ports and their respected device name by accessing the registry.
+        /// </summary>
+        /// <returns>A dictionary containing device names (e.g. USBSER000, Serial1, ...) and port names (e.g. COM1, COM20, ...), as keys and values respectively. </returns>
         public static Dictionary<String, String> EnumerateSerialPorts()
         {
             const string keyname = @"HARDWARE\DEVICEMAP\SERIALCOMM";
@@ -45,37 +59,37 @@ namespace ArduinoCommunicator
             return res;
         }
 
+        /// <summary>
+        /// Closes this serial port instance
+        /// </summary>
         public void Close()
         {
             Dispose();
             //NativeMethods.CloseHandle(serialHandle);
         }
 
+        /// <summary>
+        /// Called when this object is disposed
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Opens the port.
+        /// </summary>
+        /// <exception cref="IOException">
+        /// Raises IOException if cannot open port, or if some error happened during reading or writing port settings. Read the exception message to clarify.
+        /// </exception>
         public void Open()
         {
-            serialHandle = NativeMethods.CreateFile("\\\\.\\" + this.portName, (uint)(EFileAccess.FILE_GENERIC_READ | EFileAccess.FILE_GENERIC_WRITE), 0, IntPtr.Zero, (uint)ECreationDisposition.OpenExisting, (uint)EFileAttributes.Normal, IntPtr.Zero);
+            serialHandle = NativeMethods.CreateFile("\\\\.\\" + this.PortName, (uint)(EFileAccess.FILE_GENERIC_READ | EFileAccess.FILE_GENERIC_WRITE), 0, IntPtr.Zero, (uint)ECreationDisposition.OpenExisting, (uint)EFileAttributes.Normal, IntPtr.Zero);
             if (serialHandle.IsInvalid)
-                throw new IOException("Cannot open " + this.portName);
+                throw new IOException("Cannot open " + this.PortName);
 
-            DCB serialParams = new DCB();
-            serialParams.DCBLength = (uint)Marshal.SizeOf(serialParams);
-
-            if (!NativeMethods.GetCommState(serialHandle, ref serialParams))
-                throw new IOException("GetCommState error!");
-
-            serialParams.BaudRate = (uint)this.baudRate;
-            serialParams.ByteSize = (byte)this.dataBits;
-            serialParams.StopBits = this.stopBits;
-            serialParams.Parity = this.parity;
-            serialParams.DtrControl = DtrControl.Enable;
-            if (!NativeMethods.SetCommState(serialHandle, ref serialParams))
-                throw new IOException("SetCommState error!");
+            SetParams();
 
             COMMTIMEOUTS timeout = new COMMTIMEOUTS();
             timeout.ReadIntervalTimeout = 50;
@@ -91,6 +105,13 @@ namespace ArduinoCommunicator
             IsOpen = true;
         }
 
+        /// <summary>
+        /// Reads a number of bytes from the SerialPort input buffer and writes those bytes into a byte array at the specified offset.
+        /// </summary>
+        /// <param name="buffer">The byte array to write the input to. </param>
+        /// <param name="offset">The offset in <paramref name="buffer"/> at which to write the bytes. </param>
+        /// <param name="count">The maximum number of bytes to read. Fewer bytes are read if count is greater than the number of bytes in the input buffer. </param>
+        /// <exception cref="IOException">Raises IOException on failure. Read exception message to clarify.</exception>
         public void Read(byte[] buffer, int offset, int count)
         {
             //serialStream.Read(buffer, offset, count); ;
@@ -106,6 +127,10 @@ namespace ArduinoCommunicator
             unoffsetedBuffer.CopyTo(buffer, offset);
         }
 
+        /// <summary>
+        /// Reads all bytes from the SerialPort input buffer.
+        /// </summary>
+        /// <returns>An array containing the read data</returns>
         public byte[] ReadAll()
         {
             byte[] buffer = new byte[this.BytesToRead];
@@ -113,6 +138,9 @@ namespace ArduinoCommunicator
             return buffer;
         }
 
+        /// <summary>
+        /// Run asynchronous operation (if <see cref="Async"/> is set to True)
+        /// </summary>
         public void Run()
         {
             if (IsRunning)
@@ -129,6 +157,9 @@ namespace ArduinoCommunicator
             IsRunning = true;
         }
 
+        /// <summary>
+        /// Stop the asynchronous operation (if running)
+        /// </summary>
         public void Stop()
         {
             if (!IsRunning)
@@ -141,6 +172,12 @@ namespace ArduinoCommunicator
             IsRunning = false;
         }
 
+        /// <summary>
+        /// Writes a specified number of bytes to the serial port using data from a buffer.
+        /// </summary>
+        /// <param name="buffer">The byte array that contains the data to write to the port.</param>
+        /// <param name="offset">The zero-based byte offset in the <paramref name="buffer"/> parameter at which to begin copying bytes to the port.</param>
+        /// <param name="count">The number of bytes to write. </param>
         public void Write(byte[] buffer, int offset, int count)
         {
             if (count != 4)
@@ -154,6 +191,10 @@ namespace ArduinoCommunicator
                 throw new IOException("Write returned error :" + new Win32Exception((int)NativeMethods.GetLastError()).Message);
         }
 
+        /// <summary>
+        /// Writes all bytes to the serial port.
+        /// </summary>
+        /// <param name="buffer">The byte array that contains the data to write to the port.</param>
         public void WriteAll(byte[] buffer)
         {
             Write(buffer, 0, buffer.Length);
@@ -163,6 +204,10 @@ namespace ArduinoCommunicator
 
         #region Protected Methods
 
+        /// <summary>
+        /// Gets called when this instance is disposed.
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposed)
@@ -176,11 +221,14 @@ namespace ArduinoCommunicator
             disposed = true;
         }
 
+        /// <summary>
+        /// If <see cref="Async"/> is true, this method is called when new data is available in the input buffer of the serial port.
+        /// </summary>
         protected virtual void OnDataReceived()
         {
-            EventHandler<SerialPortNETDataReceivedEventArgs> handler = DataReceived;
+            SerialDataReceivedEventHandler handler = DataReceived;
             if (handler != null)
-                handler(this, new SerialPortNETDataReceivedEventArgs(SerialData.Chars));
+                handler(this, new SerialDataReceivedEventArgs(SerialData.Chars));
         }
 
         #endregion Protected Methods
@@ -203,6 +251,26 @@ namespace ArduinoCommunicator
             throw new NotImplementedException();
         }
 
+        private DCB GetParams()
+        {
+            DCB serialParams = new DCB();
+            serialParams.DCBLength = (uint)Marshal.SizeOf(serialParams);
+
+            if (!NativeMethods.GetCommState(serialHandle, ref serialParams))
+                throw new IOException("GetCommState error!");
+
+            this._baudRate = (int)serialParams.BaudRate;
+            this._dataBits = serialParams.ByteSize;
+            this._stopBits = serialParams.StopBits;
+            this._parity = serialParams.Parity;
+            this._dtrControl = serialParams.DtrControl;
+
+            if (!NativeMethods.SetCommState(serialHandle, ref serialParams))
+                throw new IOException("SetCommState error!");
+
+            return serialParams;
+        }
+
         private COMSTAT getStats()
         {
             uint flags = 0;
@@ -211,16 +279,41 @@ namespace ArduinoCommunicator
             return stats;
         }
 
+        private void SetParams()
+        {
+            DCB serialParams = GetParams();
+
+            serialParams.BaudRate = (uint)this._baudRate;
+            serialParams.ByteSize = (byte)this._dataBits;
+            serialParams.StopBits = this._stopBits;
+            serialParams.Parity = this._parity;
+            serialParams.DtrControl = this._dtrControl;
+
+            if (!NativeMethods.SetCommState(serialHandle, ref serialParams))
+                throw new IOException("SetCommState error!");
+        }
+
         #endregion Private Methods
 
         #region Public Events
 
-        public event EventHandler<SerialPortNETDataReceivedEventArgs> DataReceived;
+        /// <summary>
+        /// If <see cref="Async"/> is true, this event is raised when new data is available in the input buffer of the serial port.
+        /// </summary>
+        public event SerialDataReceivedEventHandler DataReceived;
 
         #endregion Public Events
 
         #region Public Properties
 
+        /// <summary>
+        /// Gets or sets the serial baud rate.
+        /// </summary>
+        public int BaudRate { get { GetParams(); return _baudRate; } set { _baudRate = value; SetParams(); } }
+
+        /// <summary>
+        /// Gets the number of bytes of data in the receive buffer.
+        /// </summary>
         public int BytesToRead
         {
             get
@@ -229,6 +322,9 @@ namespace ArduinoCommunicator
             }
         }
 
+        /// <summary>
+        /// Gets the number of bytes of data in the send buffer.
+        /// </summary>
         public int BytesToWrite
         {
             get
@@ -237,34 +333,73 @@ namespace ArduinoCommunicator
             }
         }
 
+        /// <summary>
+        /// Gets or sets the standard length of data bits per byte.
+        /// </summary>
+        public byte DataBits { get { GetParams(); return _dataBits; } set { _dataBits = value; SetParams(); } }
+
+        /// <summary>
+        /// Gets or sets a value that enables the Data Terminal Ready (DTR) signal during serial communication.
+        /// </summary>
+        public DtrControl DtrControl { get { GetParams(); return _dtrControl; } set { _dtrControl = value; SetParams(); } }
+
+        /// <summary>
+        /// Gets a value indicating the open or closed status of the <see cref="SerialPort"/> object.
+        /// </summary>
         public bool IsOpen { private set; get; }
+
+        /// <summary>
+        /// Gets a value indicating the running status of the <see cref="SerialPort"/> object.
+        /// </summary>
         public bool IsRunning { private set; get; }
+
+        /// <summary>
+        /// Gets or sets the parity-checking protocol.
+        /// </summary>
+        public Parity Parity { get { GetParams(); return _parity; } set { _parity = value; SetParams(); } }
+
+        /// <summary>
+        /// Gets or sets the port for communications, including but not limited to all available COM ports.
+        /// </summary>
+        public string PortName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of bytes in the internal input buffer before a <see cref="DataReceived"/> event occurs.
+        /// </summary>
         public int ReceivedBytesThreshold { get; set; }
 
         #endregion Public Properties
 
         #region Public Fields
 
-        public readonly string portName;
+        /// <summary>
+        /// Set to true for asynchronous (event based) operation.
+        /// </summary>
         public bool Async = true;
 
         #endregion Public Fields
 
         #region Private Fields
 
-        private int baudRate;
+        private int _baudRate;
 
-        // For async operation
+        private byte _dataBits;
+
+        private DtrControl _dtrControl;
+
+        private Parity _parity;
+
+        private StopBits _stopBits;
+
+        // For asynchronous operation
         private BackgroundWorker bgWorker = new BackgroundWorker();
 
-        private int dataBits;
         private bool disposed;
-        private Parity parity;
 
         //FileStream serialStream;
         private SafeFileHandle serialHandle;
 
-        private StopBits stopBits;
+        private StopBits StopBits;
 
         #endregion Private Fields
     }

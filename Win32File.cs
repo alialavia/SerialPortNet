@@ -1,13 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 using Microsoft.Win32.SafeHandles;
 
-namespace ArduinoCommunicator
+namespace SerialPortNET
 {
+    /// <summary>
+    /// DTR line and handshaking control
+    /// </summary>
     public enum DtrControl : int
     {
         /// <summary>
@@ -27,7 +28,89 @@ namespace ArduinoCommunicator
         Handshake = 2
     }
 
-    public enum ECreationDisposition : uint
+    /// <summary>
+    /// Specifies the parity bit for a <see cref="SerialPort"/> object.
+    /// </summary>
+    public enum Parity : byte
+    {
+        /// <summary>
+        /// No parity check occurs.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Sets the parity bit so that the count of bits set is an odd number.
+        /// </summary>
+        Odd = 1,
+
+        /// <summary>
+        /// Sets the parity bit so that the count of bits set is an even number.
+        /// </summary>
+        Even = 2,
+
+        /// <summary>
+        /// Leaves the parity bit set to 1.
+        /// </summary>
+        Mark = 3,
+
+        /// <summary>
+        /// Leaves the parity bit set to 0.
+        /// </summary>
+        Space = 4,
+    }
+
+    /// <summary>
+    /// RTS line control
+    /// </summary>
+    public enum RtsControl : int
+    {
+        /// <summary>
+        /// Disables the RTS line when the device is opened and leaves it disabled.
+        /// </summary>
+        Disable = 0,
+
+        /// <summary>
+        /// Enables the RTS line when the device is opened and leaves it on.
+        /// </summary>
+        Enable = 1,
+
+        /// <summary>
+        /// Enables RTS handshaking. The driver raises the RTS line when the "type-ahead" (input) buffer
+        /// is less than one-half full and lowers the RTS line when the buffer is more than
+        /// three-quarters full. If handshaking is enabled, it is an error for the application to
+        /// adjust the line by using the EscapeCommFunction function.
+        /// </summary>
+        Handshake = 2,
+
+        /// <summary>
+        /// Specifies that the RTS line will be high if bytes are available for transmission. After
+        /// all buffered bytes have been sent, the RTS line will be low.
+        /// </summary>
+        Toggle = 3
+    }
+
+    /// <summary>
+    /// Specifies the number of stop bits used on the <see cref="SerialPort"/> object.
+    /// </summary>
+    public enum StopBits : byte
+    {
+        /// <summary>
+        /// One stop bit is used.
+        /// </summary>
+        One = 0,
+
+        /// <summary>
+        /// 1.5 stop bits are used.
+        /// </summary>
+        OnePointFive = 1,
+
+        /// <summary>
+        /// Two stop bits are used.
+        /// </summary>
+        Two = 2
+    }
+
+    internal enum ECreationDisposition : uint
     {
         /// <summary>
         /// Creates a new file. The function fails if a specified file exists.
@@ -60,10 +143,10 @@ namespace ArduinoCommunicator
     }
 
     [Flags]
-    public enum EFileAccess : uint
+    internal enum EFileAccess : uint
     {
         //
-        // Standart Section
+        // Standard Section
         //
 
         AccessSystemSecurity = 0x1000000,   // AccessSystemAcl access type
@@ -136,7 +219,7 @@ namespace ArduinoCommunicator
     }
 
     [Flags]
-    public enum EFileAttributes : uint
+    internal enum EFileAttributes : uint
     {
         Readonly = 0x00000001,
         Hidden = 0x00000002,
@@ -166,7 +249,7 @@ namespace ArduinoCommunicator
     }
 
     [Flags]
-    public enum EFileDevice : uint
+    internal enum EFileDevice : uint
     {
         Beep = 0x00000001,
         CDRom = 0x00000002,
@@ -241,7 +324,7 @@ namespace ArduinoCommunicator
     }
 
     [Flags]
-    public enum EFileShare : uint
+    internal enum EFileShare : uint
     {
         /// <summary>
         ///
@@ -277,7 +360,7 @@ namespace ArduinoCommunicator
     ///     http://msdn.microsoft.com/en-us/library/windows/hardware/ff543023(v=vs.85).aspx
     /// </summary>
     [Flags]
-    public enum EIOControlCode : uint
+    internal enum EIOControlCode : uint
     {
         // STORAGE
         StorageCheckVerify = (EFileDevice.MassStorage << 16) | (0x0200 << 2) | EMethod.Buffered | (FileAccess.Read << 14),
@@ -439,7 +522,7 @@ namespace ArduinoCommunicator
     }
 
     [Flags]
-    public enum EMethod : uint
+    internal enum EMethod : uint
     {
         Buffered = 0,
         InDirect = 1,
@@ -447,17 +530,8 @@ namespace ArduinoCommunicator
         Neither = 3
     }
 
-    public enum Parity : byte
-    {
-        None = 0,
-        Odd = 1,
-        Even = 2,
-        Mark = 3,
-        Space = 4,
-    }
-
     [Flags]
-    public enum PurgeFlags : uint
+    internal enum PurgeFlags : uint
     {
         TxAbort = 0x0001,  // Kill the pending/current writes to the comm port.
         RxAbort = 0x0002,  // Kill the pending/current reads to the comm port.
@@ -465,41 +539,7 @@ namespace ArduinoCommunicator
         RxClear = 0x0008  // Kill the typeahead buffer if there.
     }
 
-    public enum RtsControl : int
-    {
-        /// <summary>
-        /// Disables the RTS line when the device is opened and leaves it disabled.
-        /// </summary>
-        Disable = 0,
-
-        /// <summary>
-        /// Enables the RTS line when the device is opened and leaves it on.
-        /// </summary>
-        Enable = 1,
-
-        /// <summary>
-        /// Enables RTS handshaking. The driver raises the RTS line when the "type-ahead" (input) buffer
-        /// is less than one-half full and lowers the RTS line when the buffer is more than
-        /// three-quarters full. If handshaking is enabled, it is an error for the application to
-        /// adjust the line by using the EscapeCommFunction function.
-        /// </summary>
-        Handshake = 2,
-
-        /// <summary>
-        /// Specifies that the RTS line will be high if bytes are available for transmission. After
-        /// all buffered bytes have been sent, the RTS line will be low.
-        /// </summary>
-        Toggle = 3
-    }
-
-    public enum StopBits : byte
-    {
-        One = 0,
-        OnePointFive = 1,
-        Two = 2
-    }
-
-    public struct COMMTIMEOUTS
+    internal struct COMMTIMEOUTS
     {
         #region Public Fields
 
@@ -513,7 +553,7 @@ namespace ArduinoCommunicator
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct COMSTAT
+    internal struct COMSTAT
     {
         public const uint fCtsHold = 0x1;
         public const uint fDsrHold = 0x2;
@@ -528,7 +568,7 @@ namespace ArduinoCommunicator
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct DCB
+    internal struct DCB
     {
         internal uint DCBLength;
         internal uint BaudRate;
