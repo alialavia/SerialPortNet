@@ -7,10 +7,6 @@ using System.IO.Ports;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-/// <summary>
-/// The SerialPortNET namespace contains classes for controlling serial ports. 
-/// The most important class, SerialPort, provides a framework for synchronous and event-driven I/O, access to pin and break states, and access to serial driver properties.
-/// </summary>
 namespace SerialPortNET
 {
     /// <summary>
