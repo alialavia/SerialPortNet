@@ -253,21 +253,24 @@ namespace SerialPortNET
 
         private DCB GetParams()
         {
+
             DCB serialParams = new DCB();
             serialParams.DCBLength = (uint)Marshal.SizeOf(serialParams);
 
-            if (!NativeMethods.GetCommState(serialHandle, ref serialParams))
-                throw new IOException("GetCommState error!");
+            if (serialHandle != null)
+            {
+                if (!NativeMethods.GetCommState(serialHandle, ref serialParams))
+                    throw new IOException("GetCommState error!");
 
-            this._baudRate = (int)serialParams.BaudRate;
-            this._dataBits = serialParams.ByteSize;
-            this._stopBits = serialParams.StopBits;
-            this._parity = serialParams.Parity;
-            this._dtrControl = serialParams.DtrControl;
+                this._baudRate = (int)serialParams.BaudRate;
+                this._dataBits = serialParams.ByteSize;
+                this._stopBits = serialParams.StopBits;
+                this._parity = serialParams.Parity;
+                this._dtrControl = serialParams.DtrControl;
 
-            if (!NativeMethods.SetCommState(serialHandle, ref serialParams))
-                throw new IOException("SetCommState error!");
-
+                if (!NativeMethods.SetCommState(serialHandle, ref serialParams))
+                    throw new IOException("SetCommState error!");
+            }
             return serialParams;
         }
 
@@ -281,6 +284,9 @@ namespace SerialPortNET
 
         private void SetParams()
         {
+            if (serialHandle == null)
+                return;
+
             DCB serialParams = GetParams();
 
             serialParams.BaudRate = (uint)this._baudRate;
