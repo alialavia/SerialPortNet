@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<HelpKI>
+  <HelpKINode Title="Async field" Url="html/ec782a4d-ecc0-8edc-7e9b-5ce1e095d43a.htm" />
+  <HelpKINode Title="BaudRate property" Url="html/8b41d0de-6ede-bab9-d38e-d0a44cafbdbe.htm" />
+  <HelpKINode Title="BytesToRead property" Url="html/d2e8aaf0-ad8e-4789-9ca2-eb8841b5a73b.htm" />
+  <HelpKINode Title="BytesToWrite property" Url="html/a31445fe-0fda-ca6b-6fbf-0ef1c6e27cb3.htm" />
+  <HelpKINode Title="Close method" Url="html/1c433a60-2543-bdae-0d17-e4f64c217a27.htm" />
+  <HelpKINode Title="DataBits property" Url="html/0d656e0e-496d-7f58-d7c1-d96b0cb6c71d.htm" />
+  <HelpKINode Title="DataReceived event" Url="html/d53d37a1-55a1-2dfd-ff8f-6b44cf8bfb9c.htm" />
+  <HelpKINode Title="Disable enumeration member">
+    <HelpKINode Title="DtrControl Enumeration" Url="html/1fe186ca-9eeb-d7a2-32c9-0eebb4a75de0.htm" />
+    <HelpKINode Title="RtsControl Enumeration" Url="html/1fb71913-d9b9-29a6-e41a-de7ae5c436a9.htm" />
+  </HelpKINode>
+  <HelpKINode Title="Dispose method" Url="html/36978e79-454e-a4a2-ca17-9bd3e9f8fb18.htm" />
+  <HelpKINode Title="DtrControl enumeration" Url="html/1fe186ca-9eeb-d7a2-32c9-0eebb4a75de0.htm" />
+  <HelpKINode Title="DtrControl property" Url="html/1b44fc43-4d57-acaa-0638-3eac114f7cc8.htm" />
+  <HelpKINode Title="Enable enumeration member">
+    <HelpKINode Title="DtrControl Enumeration" Url="html/1fe186ca-9eeb-d7a2-32c9-0eebb4a75de0.htm" />
+    <HelpKINode Title="RtsControl Enumeration" Url="html/1fb71913-d9b9-29a6-e41a-de7ae5c436a9.htm" />
+  </HelpKINode>
+  <HelpKINode Title="EnumerateSerialPorts method" Url="html/54b8c90a-8cbc-e505-6ef8-5270519e9078.htm" />
+  <HelpKINode Title="Even enumeration member" Url="html/39537e59-2c48-464f-e3ec-05899a2bc179.htm" />
+  <HelpKINode Title="EventType property" Url="html/3e5c41ce-f9aa-f861-7eb6-e763c2cf47f5.htm" />
+  <HelpKINode Title="Handshake enumeration member">
+    <HelpKINode Title="DtrControl Enumeration" Url="html/1fe186ca-9eeb-d7a2-32c9-0eebb4a75de0.htm" />
+    <HelpKINode Title="RtsControl Enumeration" Url="html/1fb71913-d9b9-29a6-e41a-de7ae5c436a9.htm" />
+  </HelpKINode>
+  <HelpKINode Title="IsOpen property" Url="html/75275c8c-cb46-ff74-92bd-f0789ed37623.htm" />
+  <HelpKINode Title="IsRunning property" Url="html/2991966e-99c4-8616-db59-9589c968b733.htm" />
+  <HelpKINode Title="Mark enumeration member" Url="html/39537e59-2c48-464f-e3ec-05899a2bc179.htm" />
+  <HelpKINode Title="None enumeration member" Url="html/39537e59-2c48-464f-e3ec-05899a2bc179.htm" />
+  <HelpKINode Title="Odd enumeration member" Url="html/39537e59-2c48-464f-e3ec-05899a2bc179.htm" />
+  <HelpKINode Title="OnDataReceived method" Url="html/8697649c-777d-8080-6224-b330ba8575d9.htm" />
+  <HelpKINode Title="One enumeration member" Url="html/74432bb0-c44b-8a90-31b1-b1b6cb981f31.htm" />
+  <HelpKINode Title="OnePointFive enumeration member" Url="html/74432bb0-c44b-8a90-31b1-b1b6cb981f31.htm" />
+  <HelpKINode Title="Open method" Url="html/2d1367cc-fb48-b912-b6b4-2a86d8559e71.htm" />
+  <HelpKINode Title="Parity enumeration" Url="html/39537e59-2c48-464f-e3ec-05899a2bc179.htm" />
+  <HelpKINode Title="Parity property" Url="html/53a99418-039b-f6e2-3285-0810aca00437.htm" />
+  <HelpKINode Title="PortName property" Url="html/eaed8dd0-064f-5b91-c21a-ab91ad0ef20e.htm" />
+  <HelpKINode Title="Read method" Url="html/b976f4a3-dc23-b96f-7410-e5c8df8dd327.htm" />
+  <HelpKINode Title="ReadAll method" Url="html/eaea9b08-f6c4-89fd-fe73-8153fec420d7.htm" />
+  <HelpKINode Title="ReceivedBytesThreshold property" Url="html/1fc3bcbe-501c-0ef8-2661-b52f231184ad.htm" />
+  <HelpKINode Title="RtsControl enumeration" Url="html/1fb71913-d9b9-29a6-e41a-de7ae5c436a9.htm" />
+  <HelpKINode Title="Run method" Url="html/05b1549d-52d6-2e85-d86e-9fd6c6ac2034.htm" />
+  <HelpKINode Title="SerialDataReceivedEventArgs class">
+    <HelpKINode Title="SerialDataReceivedEventArgs Class" Url="html/13b34075-2655-fc0c-4292-a541bc011eac.htm" />
+    <HelpKINode Title="about SerialDataReceivedEventArgs class" Url="html/13b34075-2655-fc0c-4292-a541bc011eac.htm" />
+    <HelpKINode Title="methods" Url="html/86603cb7-96d3-7923-85b9-8f56cb9a447b.htm" />
+    <HelpKINode Title="properties" Url="html/d4e03726-26ea-ca77-b6ca-738803c27e02.htm" />
+  </HelpKINode>
+  <HelpKINode Title="SerialDataReceivedEventArgs.EventType property" Url="html/3e5c41ce-f9aa-f861-7eb6-e763c2cf47f5.htm" />
+  <HelpKINode Title="SerialDataReceivedEventHandler delegate" Url="html/12884cec-e7c6-b806-dddf-1828958dd0b0.htm" />
+  <HelpKINode Title="SerialPort class">
+    <HelpKINode Title="SerialPort Class" Url="html/abea2f0a-b570-e744-be7a-3d84eb37a2d6.htm" />
+    <HelpKINode Title="about SerialPort class" Url="html/abea2f0a-b570-e744-be7a-3d84eb37a2d6.htm" />
+    <HelpKINode Title="constructor" Url="html/bbf18dad-481a-6e9d-a3f8-e283ade646d9.htm" />
+    <HelpKINode Title="events" Url="html/1c458234-101a-f68b-0bbf-b9ad7d3e25e2.htm" />
+    <HelpKINode Title="fields" Url="html/10854f84-2ab2-b7b0-bdfb-27a737e07305.htm" />
+    <HelpKINode Title="methods" Url="html/ab741ea7-4252-2224-2622-d2b48df2e0e6.htm" />
+    <HelpKINode Title="properties" Url="html/3687b32f-ea11-20a5-ec43-086366dc2073.htm" />
+  </HelpKINode>
+  <HelpKINode Title="SerialPort.Async field" Url="html/ec782a4d-ecc0-8edc-7e9b-5ce1e095d43a.htm" />
+  <HelpKINode Title="SerialPort.BaudRate property" Url="html/8b41d0de-6ede-bab9-d38e-d0a44cafbdbe.htm" />
+  <HelpKINode Title="SerialPort.BytesToRead property" Url="html/d2e8aaf0-ad8e-4789-9ca2-eb8841b5a73b.htm" />
+  <HelpKINode Title="SerialPort.BytesToWrite property" Url="html/a31445fe-0fda-ca6b-6fbf-0ef1c6e27cb3.htm" />
+  <HelpKINode Title="SerialPort.Close method" Url="html/1c433a60-2543-bdae-0d17-e4f64c217a27.htm" />
+  <HelpKINode Title="SerialPort.DataBits property" Url="html/0d656e0e-496d-7f58-d7c1-d96b0cb6c71d.htm" />
+  <HelpKINode Title="SerialPort.DataReceived event" Url="html/d53d37a1-55a1-2dfd-ff8f-6b44cf8bfb9c.htm" />
+  <HelpKINode Title="SerialPort.Dispose method" Url="html/36978e79-454e-a4a2-ca17-9bd3e9f8fb18.htm" />
+  <HelpKINode Title="SerialPort.DtrControl property" Url="html/1b44fc43-4d57-acaa-0638-3eac114f7cc8.htm" />
+  <HelpKINode Title="SerialPort.EnumerateSerialPorts method" Url="html/54b8c90a-8cbc-e505-6ef8-5270519e9078.htm" />
+  <HelpKINode Title="SerialPort.IsOpen property" Url="html/75275c8c-cb46-ff74-92bd-f0789ed37623.htm" />
+  <HelpKINode Title="SerialPort.IsRunning property" Url="html/2991966e-99c4-8616-db59-9589c968b733.htm" />
+  <HelpKINode Title="SerialPort.OnDataReceived method" Url="html/8697649c-777d-8080-6224-b330ba8575d9.htm" />
+  <HelpKINode Title="SerialPort.Open method" Url="html/2d1367cc-fb48-b912-b6b4-2a86d8559e71.htm" />
+  <HelpKINode Title="SerialPort.Parity property" Url="html/53a99418-039b-f6e2-3285-0810aca00437.htm" />
+  <HelpKINode Title="SerialPort.PortName property" Url="html/eaed8dd0-064f-5b91-c21a-ab91ad0ef20e.htm" />
+  <HelpKINode Title="SerialPort.Read method" Url="html/b976f4a3-dc23-b96f-7410-e5c8df8dd327.htm" />
+  <HelpKINode Title="SerialPort.ReadAll method" Url="html/eaea9b08-f6c4-89fd-fe73-8153fec420d7.htm" />
+  <HelpKINode Title="SerialPort.ReceivedBytesThreshold property" Url="html/1fc3bcbe-501c-0ef8-2661-b52f231184ad.htm" />
+  <HelpKINode Title="SerialPort.Run method" Url="html/05b1549d-52d6-2e85-d86e-9fd6c6ac2034.htm" />
+  <HelpKINode Title="SerialPort.SerialPort constructor" Url="html/bbf18dad-481a-6e9d-a3f8-e283ade646d9.htm" />
+  <HelpKINode Title="SerialPort.Stop method" Url="html/9b7b1b69-3795-af50-f905-0dd005961a07.htm" />
+  <HelpKINode Title="SerialPort.Write method" Url="html/1695adea-80a9-861c-9519-11290bbd24f2.htm" />
+  <HelpKINode Title="SerialPort.WriteAll method" Url="html/3829629a-9287-edfe-5362-64465c7b169b.htm" />
+  <HelpKINode Title="SerialPortNET namespace" Url="html/ce30ad11-a2b0-1d46-beba-b252990b83d8.htm" />
+  <HelpKINode Title="SerialPortNET.DtrControl enumeration" Url="html/1fe186ca-9eeb-d7a2-32c9-0eebb4a75de0.htm" />
+  <HelpKINode Title="SerialPortNET.Parity enumeration" Url="html/39537e59-2c48-464f-e3ec-05899a2bc179.htm" />
+  <HelpKINode Title="SerialPortNET.RtsControl enumeration" Url="html/1fb71913-d9b9-29a6-e41a-de7ae5c436a9.htm" />
+  <HelpKINode Title="SerialPortNET.SerialDataReceivedEventArgs class" Url="html/13b34075-2655-fc0c-4292-a541bc011eac.htm" />
+  <HelpKINode Title="SerialPortNET.SerialDataReceivedEventHandler delegate" Url="html/12884cec-e7c6-b806-dddf-1828958dd0b0.htm" />
+  <HelpKINode Title="SerialPortNET.SerialPort class" Url="html/abea2f0a-b570-e744-be7a-3d84eb37a2d6.htm" />
+  <HelpKINode Title="SerialPortNET.StopBits enumeration" Url="html/74432bb0-c44b-8a90-31b1-b1b6cb981f31.htm" />
+  <HelpKINode Title="Space enumeration member" Url="html/39537e59-2c48-464f-e3ec-05899a2bc179.htm" />
+  <HelpKINode Title="Stop method" Url="html/9b7b1b69-3795-af50-f905-0dd005961a07.htm" />
+  <HelpKINode Title="StopBits enumeration" Url="html/74432bb0-c44b-8a90-31b1-b1b6cb981f31.htm" />
+  <HelpKINode Title="Toggle enumeration member" Url="html/1fb71913-d9b9-29a6-e41a-de7ae5c436a9.htm" />
+  <HelpKINode Title="Two enumeration member" Url="html/74432bb0-c44b-8a90-31b1-b1b6cb981f31.htm" />
+  <HelpKINode Title="Write method" Url="html/1695adea-80a9-861c-9519-11290bbd24f2.htm" />
+  <HelpKINode Title="WriteAll method" Url="html/3829629a-9287-edfe-5362-64465c7b169b.htm" />
+</HelpKI>
