@@ -26,16 +26,16 @@ namespace SerialPortNET
         /// <param name="stopBits">Stop bits</param>
         public SerialPort(string portName, int baudRate, Parity parity, byte dataBits, StopBits stopBits)
         {
-            // Do some basic settings
             this.IsOpen = false;
             this.IsRunning = false;
             this.PortName = portName;
-            this.BaudRate = baudRate;
-            this.Parity = parity;
-            this.DataBits = dataBits;
-            this.StopBits = stopBits;
 
-            this.DtrControl = DtrControl.Enable; // Default
+            // parameters
+            this._baudRate = baudRate;
+            this._parity = parity;
+            this._dataBits = dataBits;
+            this._stopBits = stopBits;
+            this._dtrControl = DtrControl.Enable; // Default
         }
 
         #endregion Public Constructors
@@ -73,6 +73,7 @@ namespace SerialPortNET
         /// </summary>
         public void Dispose()
         {
+            Debug.WriteLine("SerialPort Disposed!");
             Dispose(true);
             GC.SuppressFinalize(this);
         }
@@ -83,6 +84,7 @@ namespace SerialPortNET
         /// <exception cref="IOException">
         /// Raises IOException if cannot open port, or if some error happened during reading or writing port settings. Read the exception message to clarify.
         /// </exception>
+        //[MethodImpl(MethodImplOptions.Synchronized)]
         public void Open()
         {
             serialHandle = NativeMethods.CreateFile("\\\\.\\" + this.PortName, (uint)(EFileAccess.FILE_GENERIC_READ | EFileAccess.FILE_GENERIC_WRITE), 0, IntPtr.Zero, (uint)ECreationDisposition.OpenExisting, (uint)EFileAttributes.Normal, IntPtr.Zero);
@@ -180,15 +182,20 @@ namespace SerialPortNET
         /// <param name="count">The number of bytes to write. </param>
         public void Write(byte[] buffer, int offset, int count)
         {
-            if (count != 4)
-                Debugger.Break();
             //serialStream.Write(buffer, offset, count);
             uint bytesWrote = 0;
             byte[] offsetedBuffer = new byte[count];
             buffer.CopyTo(offsetedBuffer, offset);
-            bool success = NativeMethods.WriteFile(serialHandle, offsetedBuffer, (uint)count, out bytesWrote, IntPtr.Zero);
-            if (!success)
-                throw new IOException("Write returned error :" + new Win32Exception((int)NativeMethods.GetLastError()).Message);
+            try
+            {
+                bool success = NativeMethods.WriteFile(serialHandle, offsetedBuffer, (uint)count, out bytesWrote, IntPtr.Zero);
+                if (!success)
+                    throw new IOException("Write returned error :" + new Win32Exception((int)NativeMethods.GetLastError()).Message);
+            }
+            catch (Exception ex)
+            {
+                Debug.Write(ex);
+            }
         }
 
         /// <summary>
@@ -253,7 +260,6 @@ namespace SerialPortNET
 
         private DCB GetParams()
         {
-
             DCB serialParams = new DCB();
             serialParams.DCBLength = (uint)Marshal.SizeOf(serialParams);
 
@@ -261,15 +267,6 @@ namespace SerialPortNET
             {
                 if (!NativeMethods.GetCommState(serialHandle, ref serialParams))
                     throw new IOException("GetCommState error!");
-
-                this._baudRate = (int)serialParams.BaudRate;
-                this._dataBits = serialParams.ByteSize;
-                this._stopBits = serialParams.StopBits;
-                this._parity = serialParams.Parity;
-                this._dtrControl = serialParams.DtrControl;
-
-                if (!NativeMethods.SetCommState(serialHandle, ref serialParams))
-                    throw new IOException("SetCommState error!");
             }
             return serialParams;
         }
@@ -315,7 +312,7 @@ namespace SerialPortNET
         /// <summary>
         /// Gets or sets the serial baud rate.
         /// </summary>
-        public int BaudRate { get { GetParams(); return _baudRate; } set { _baudRate = value; SetParams(); } }
+        public int BaudRate { get { return (int)GetParams().BaudRate; } set { _baudRate = value; SetParams(); } }
 
         /// <summary>
         /// Gets the number of bytes of data in the receive buffer.
@@ -342,12 +339,12 @@ namespace SerialPortNET
         /// <summary>
         /// Gets or sets the standard length of data bits per byte.
         /// </summary>
-        public byte DataBits { get { GetParams(); return _dataBits; } set { _dataBits = value; SetParams(); } }
+        public byte DataBits { get { return GetParams().ByteSize; } set { _dataBits = value; SetParams(); } }
 
         /// <summary>
         /// Gets or sets a value that enables the Data Terminal Ready (DTR) signal during serial communication.
         /// </summary>
-        public DtrControl DtrControl { get { GetParams(); return _dtrControl; } set { _dtrControl = value; SetParams(); } }
+        public DtrControl DtrControl { get { return GetParams().DtrControl; } set { _dtrControl = value; SetParams(); } }
 
         /// <summary>
         /// Gets a value indicating the open or closed status of the <see cref="SerialPort"/> object.
@@ -362,7 +359,7 @@ namespace SerialPortNET
         /// <summary>
         /// Gets or sets the parity-checking protocol.
         /// </summary>
-        public Parity Parity { get { GetParams(); return _parity; } set { _parity = value; SetParams(); } }
+        public Parity Parity { get { return GetParams().Parity; } set { _parity = value; SetParams(); } }
 
         /// <summary>
         /// Gets or sets the port for communications, including but not limited to all available COM ports.
@@ -373,6 +370,8 @@ namespace SerialPortNET
         /// Gets or sets the number of bytes in the internal input buffer before a <see cref="DataReceived"/> event occurs.
         /// </summary>
         public int ReceivedBytesThreshold { get; set; }
+
+        public StopBits StopBits { get { return GetParams().StopBits; } set { _stopBits = value; SetParams(); } }
 
         #endregion Public Properties
 
@@ -388,13 +387,9 @@ namespace SerialPortNET
         #region Private Fields
 
         private int _baudRate;
-
         private byte _dataBits;
-
         private DtrControl _dtrControl;
-
         private Parity _parity;
-
         private StopBits _stopBits;
 
         // For asynchronous operation
@@ -405,7 +400,7 @@ namespace SerialPortNET
         //FileStream serialStream;
         private SafeFileHandle serialHandle;
 
-        private StopBits StopBits;
+        private object synclock = new object();
 
         #endregion Private Fields
     }
