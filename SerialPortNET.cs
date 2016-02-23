@@ -371,6 +371,9 @@ namespace SerialPortNET
         /// </summary>
         public int ReceivedBytesThreshold { get; set; }
 
+        /// <summary>
+        /// Gets or sets the standard number of stop bits per byte.
+        /// </summary>
         public StopBits StopBits { get { return GetParams().StopBits; } set { _stopBits = value; SetParams(); } }
 
         #endregion Public Properties
