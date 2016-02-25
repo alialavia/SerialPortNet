@@ -42,6 +42,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerialDataReceivedEventHandler.cs" />
     <Compile Include="SerialDataReceivedEventArgs.cs" />
+    <Compile Include="SerialPort.cs" />
     <Compile Include="Win32File.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Ubuntu.cs" />

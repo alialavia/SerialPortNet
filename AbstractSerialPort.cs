@@ -12,7 +12,7 @@ namespace SerialPortNET
 	/// <summary>
 	/// Mono implementation of SerialPort is incomplete. This is to make up for that.
 	/// </summary>
-	public class AbstractSerialPort
+	public abstract class AbstractSerialPort : ISerialPort
 	{
 		#region Public Constructors
 
@@ -151,7 +151,7 @@ namespace SerialPortNET
 			disposed = true;
 		}
 
-		protected virtual void DisposeUnmanagedResources ();
+        protected virtual void DisposeUnmanagedResources() { }
 
 		/// <summary>
 		/// If RunAsync() is called, this method is called when new data is available in the input buffer of the serial port.
@@ -199,56 +199,56 @@ namespace SerialPortNET
 		/// <summary>
 		/// Gets the number of bytes of data in the receive buffer.
 		/// </summary>
-		public int BytesToRead {
+		public abstract int BytesToRead {
 			get;
 		}
 
 		/// <summary>
 		/// Gets the number of bytes of data in the send buffer.
 		/// </summary>
-		public int BytesToWrite {
+		public abstract int BytesToWrite {
 			get;
 		}
 
 		/// <summary>
 		/// Gets or sets the standard length of data bits per byte.
 		/// </summary>
-		public byte DataBits { get ; set ; }
+		public abstract byte DataBits { get ; set ; }
 
 		/// <summary>
 		/// Gets or sets a value that enables the Data Terminal Ready (DTR) signal during serial communication.
 		/// </summary>
-		public DtrControl DtrControl { get ; set ; }
+		public abstract DtrControl DtrControl { get ; set ; }
 
 		/// <summary>
 		/// Gets a value indicating the open or closed status of the <see cref="SerialPort"/> object.
 		/// </summary>
-		public bool IsOpen { private set; get; }
+		public abstract bool IsOpen { protected set; get; }
 
 		/// <summary>
 		/// Gets a value indicating the running status of the <see cref="SerialPort"/> object.
 		/// </summary>
-		public bool IsRunning { private set; get; }
+		public bool IsRunning { protected set; get; }
 
 		/// <summary>
 		/// Gets or sets the parity-checking protocol.
 		/// </summary>
-		public Parity Parity { get ; set ; }
+		public abstract Parity Parity { get ; set ; }
 
 		/// <summary>
 		/// Gets or sets the port for communications, including but not limited to all available COM ports.
 		/// </summary>
-		public string PortName { get; set; }
+		public abstract string PortName { get; set; }
 
 		/// <summary>
 		/// Gets or sets the number of bytes in the internal input buffer before a <see cref="DataReceived"/> event occurs.
 		/// </summary>
-		public int ReceivedBytesThreshold { get; set; }
+		public abstract int ReceivedBytesThreshold { get; set; }
 
 		/// <summary>
 		/// Gets or sets the standard number of stop bits per byte.
 		/// </summary>
-		public StopBits StopBits { get ; set ; }
+		public abstract StopBits StopBits { get ; set ; }
 
 		#endregion Public Properties
 
