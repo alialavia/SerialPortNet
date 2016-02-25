@@ -12,8 +12,9 @@ namespace SerialPortNET
     /// <summary>
     /// Mono implementation of SerialPort is incomplete. This is to make up for that.
     /// </summary>
-    public class SerialPort : IDisposable
+    public class SerialPort : ISerialPort
     {
+
         #region Public Constructors
 
         /// <summary>
@@ -84,7 +85,6 @@ namespace SerialPortNET
         /// <exception cref="IOException">
         /// Raises IOException if cannot open port, or if some error happened during reading or writing port settings. Read the exception message to clarify.
         /// </exception>
-        //[MethodImpl(MethodImplOptions.Synchronized)]
         public void Open()
         {
             serialHandle = NativeMethods.CreateFile("\\\\.\\" + this.PortName, (uint)(EFileAccess.FILE_GENERIC_READ | EFileAccess.FILE_GENERIC_WRITE), 0, IntPtr.Zero, (uint)ECreationDisposition.OpenExisting, (uint)EFileAttributes.Normal, IntPtr.Zero);
@@ -141,28 +141,26 @@ namespace SerialPortNET
         }
 
         /// <summary>
-        /// Run asynchronous operation (if <see cref="Async"/> is set to True)
+        /// Run asynchronous operation.
         /// </summary>
-        public void Run()
+        public void RunAsync()
         {
             if (IsRunning)
                 return;
             if (!IsOpen)
                 return;
 
-            if (Async)
-            {
-                bgWorker.DoWork += new DoWorkEventHandler(BgWorker_DoWork);
-                bgWorker.ProgressChanged += BgWorker_ProgressChanged;
-                bgWorker.RunWorkerAsync();
-            }
+            bgWorker.DoWork += new DoWorkEventHandler(BgWorker_DoWork);
+            bgWorker.ProgressChanged += BgWorker_ProgressChanged;
+            bgWorker.RunWorkerAsync();
+
             IsRunning = true;
         }
 
         /// <summary>
-        /// Stop the asynchronous operation (if running)
+        /// Stop the asynchronous operation.
         /// </summary>
-        public void Stop()
+        public void StopAsync()
         {
             if (!IsRunning)
                 return;
@@ -229,8 +227,8 @@ namespace SerialPortNET
         }
 
         /// <summary>
-        /// If <see cref="Async"/> is true, this method is called when new data is available in the input buffer of the serial port.
-        /// </summary>
+        /// If RunAsync() is called, this method is called when new data is available in the input buffer of the serial port.
+        /// </summary>        
         protected virtual void OnDataReceived()
         {
             SerialDataReceivedEventHandler handler = DataReceived;
@@ -301,7 +299,7 @@ namespace SerialPortNET
         #region Public Events
 
         /// <summary>
-        /// If <see cref="Async"/> is true, this event is raised when new data is available in the input buffer of the serial port.
+        /// If RunAsync() is called, this event is raised when new data is available in the input buffer of the serial port.
         /// </summary>
         public event SerialDataReceivedEventHandler DataReceived;
 
@@ -380,11 +378,6 @@ namespace SerialPortNET
 
         #region Public Fields
 
-        /// <summary>
-        /// Set to true for asynchronous (event based) operation.
-        /// </summary>
-        public bool Async = true;
-
         #endregion Public Fields
 
         #region Private Fields
@@ -406,5 +399,6 @@ namespace SerialPortNET
         private object synclock = new object();
 
         #endregion Private Fields
+
     }
 }

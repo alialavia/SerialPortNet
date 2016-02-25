@@ -1,20 +1,48 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <HelpTOC>
 
-  <HelpTOCNode Id="6fe8d408-469d-4d65-94e9-778227b909dc" Title="SerialPortNET" Url="html/ce30ad11-a2b0-1d46-beba-b252990b83d8.htm">
+  <HelpTOCNode Id="3aa42f81-29de-490e-99f7-b6ccad120cf9" Title="SerialPortNET" Url="html/ce30ad11-a2b0-1d46-beba-b252990b83d8.htm">
     <HelpTOCNode Title="DtrControl Enumeration" Url="html/1fe186ca-9eeb-d7a2-32c9-0eebb4a75de0.htm" />
+    <HelpTOCNode Id="fab3bba4-49fc-4bbe-a232-541e1eef8644" Title="ISerialPort Interface" Url="html/ced5fc0f-03df-5cbd-68e8-4affc5c5f248.htm">
+      <HelpTOCNode Id="7adc9cb9-7bc1-4719-a055-90edeeebcd66" Title="ISerialPort Properties" Url="html/8ba9c525-2b72-23d6-9c4f-672a1c444ed9.htm">
+        <HelpTOCNode Title="BaudRate Property " Url="html/9b3051ce-2a6e-e516-9f21-d55ee1443eee.htm" />
+        <HelpTOCNode Title="BytesToRead Property " Url="html/c985acc7-7c17-0ff6-7637-4bc6154a3ca8.htm" />
+        <HelpTOCNode Title="BytesToWrite Property " Url="html/4787aac2-4038-0f2b-eecd-30333513530f.htm" />
+        <HelpTOCNode Title="DataBits Property " Url="html/25edbd99-dc11-78d8-18ba-4abdd04fe676.htm" />
+        <HelpTOCNode Title="DtrControl Property " Url="html/6891e5cf-8e69-b2c3-7d7c-b09c10d37790.htm" />
+        <HelpTOCNode Title="IsOpen Property " Url="html/bc8a593e-8d49-fc3d-5f16-0cb0b005cab8.htm" />
+        <HelpTOCNode Title="IsRunning Property " Url="html/4d93127c-bdec-74d1-cb73-8041b9e00081.htm" />
+        <HelpTOCNode Title="Parity Property " Url="html/18f1d4d4-131a-aaba-7064-714978854ef6.htm" />
+        <HelpTOCNode Title="PortName Property " Url="html/41444189-f532-ef32-a3bf-b08f054a9c69.htm" />
+        <HelpTOCNode Title="ReceivedBytesThreshold Property " Url="html/b6cf073a-21fe-4b15-0f1e-14120dbc1fb3.htm" />
+        <HelpTOCNode Title="StopBits Property " Url="html/b40640ec-588e-b449-a4ca-d1ee7230dee3.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="81337c37-95a4-4d9c-8120-ed03486bc3ee" Title="ISerialPort Methods" Url="html/85e9885c-df96-9e95-1793-c7ac67705ce4.htm">
+        <HelpTOCNode Title="Close Method " Url="html/3567c441-d721-f03d-6887-ec8865a166a0.htm" />
+        <HelpTOCNode Title="Open Method " Url="html/4f238837-e6fd-9953-ed7a-8be64d27e563.htm" />
+        <HelpTOCNode Title="Read Method " Url="html/8bb23840-8b36-db62-8507-ff3b583cf6ca.htm" />
+        <HelpTOCNode Title="ReadAll Method " Url="html/e5ac6699-09be-e963-2275-aa8dbc34c3a1.htm" />
+        <HelpTOCNode Title="RunAsync Method " Url="html/a06e84b8-ce89-6284-aa2e-4d4518d71e9e.htm" />
+        <HelpTOCNode Title="StopAsync Method " Url="html/c3fecb55-74fe-e7ba-799f-c0ef72bff4db.htm" />
+        <HelpTOCNode Title="Write Method " Url="html/fba2b017-9aca-4538-b267-152718457749.htm" />
+        <HelpTOCNode Title="WriteAll Method " Url="html/b48dca1b-cf14-e940-5dfd-5b2d83e2ac07.htm" />
+      </HelpTOCNode>
+      <HelpTOCNode Id="50e61968-8e90-4b2e-a7f6-3b37ee98f46a" Title="ISerialPort Events" Url="html/bc5285d9-aa80-40db-0a78-406d5092c202.htm">
+        <HelpTOCNode Title="DataReceived Event" Url="html/9110e4fb-83ac-e8e3-faa6-9506bbac389f.htm" />
+      </HelpTOCNode>
+    </HelpTOCNode>
     <HelpTOCNode Title="Parity Enumeration" Url="html/39537e59-2c48-464f-e3ec-05899a2bc179.htm" />
     <HelpTOCNode Title="RtsControl Enumeration" Url="html/1fb71913-d9b9-29a6-e41a-de7ae5c436a9.htm" />
-    <HelpTOCNode Id="8546c121-e43f-4e7f-9126-c574cba37703" Title="SerialDataReceivedEventArgs Class" Url="html/13b34075-2655-fc0c-4292-a541bc011eac.htm">
-      <HelpTOCNode Id="da67aa63-5ba7-497e-bcdd-1e2f4d7d0a2d" Title="SerialDataReceivedEventArgs Properties" Url="html/d4e03726-26ea-ca77-b6ca-738803c27e02.htm">
+    <HelpTOCNode Id="0b4059e5-7aa7-40f6-aad0-0cb0b882fe97" Title="SerialDataReceivedEventArgs Class" Url="html/13b34075-2655-fc0c-4292-a541bc011eac.htm">
+      <HelpTOCNode Id="46a9f77b-b9cf-4e2e-b9cb-80b8a565e0fe" Title="SerialDataReceivedEventArgs Properties" Url="html/d4e03726-26ea-ca77-b6ca-738803c27e02.htm">
         <HelpTOCNode Title="EventType Property " Url="html/3e5c41ce-f9aa-f861-7eb6-e763c2cf47f5.htm" />
       </HelpTOCNode>
       <HelpTOCNode Title="SerialDataReceivedEventArgs Methods" Url="html/86603cb7-96d3-7923-85b9-8f56cb9a447b.htm" />
     </HelpTOCNode>
     <HelpTOCNode Title="SerialDataReceivedEventHandler Delegate" Url="html/12884cec-e7c6-b806-dddf-1828958dd0b0.htm" />
-    <HelpTOCNode Id="32602a71-188a-466e-8a18-da04d49549e1" Title="SerialPort Class" Url="html/abea2f0a-b570-e744-be7a-3d84eb37a2d6.htm">
+    <HelpTOCNode Id="418fbb9e-ae99-4ca2-bc25-c39854e37f0e" Title="SerialPort Class" Url="html/abea2f0a-b570-e744-be7a-3d84eb37a2d6.htm">
       <HelpTOCNode Title="SerialPort Constructor " Url="html/bbf18dad-481a-6e9d-a3f8-e283ade646d9.htm" />
-      <HelpTOCNode Id="d6825566-ba00-4a1c-a3b5-f23d51103c87" Title="SerialPort Properties" Url="html/3687b32f-ea11-20a5-ec43-086366dc2073.htm">
+      <HelpTOCNode Id="f813761f-3b8d-4956-9aee-936f90746016" Title="SerialPort Properties" Url="html/3687b32f-ea11-20a5-ec43-086366dc2073.htm">
         <HelpTOCNode Title="BaudRate Property " Url="html/8b41d0de-6ede-bab9-d38e-d0a44cafbdbe.htm" />
         <HelpTOCNode Title="BytesToRead Property " Url="html/d2e8aaf0-ad8e-4789-9ca2-eb8841b5a73b.htm" />
         <HelpTOCNode Title="BytesToWrite Property " Url="html/a31445fe-0fda-ca6b-6fbf-0ef1c6e27cb3.htm" />
@@ -25,10 +53,11 @@
         <HelpTOCNode Title="Parity Property " Url="html/53a99418-039b-f6e2-3285-0810aca00437.htm" />
         <HelpTOCNode Title="PortName Property " Url="html/eaed8dd0-064f-5b91-c21a-ab91ad0ef20e.htm" />
         <HelpTOCNode Title="ReceivedBytesThreshold Property " Url="html/1fc3bcbe-501c-0ef8-2661-b52f231184ad.htm" />
+        <HelpTOCNode Title="StopBits Property " Url="html/1b39d0cb-5c91-74bf-1740-a1e7aa18bb94.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="d5685c6c-4369-44e2-9dcf-65d1291c4248" Title="SerialPort Methods" Url="html/ab741ea7-4252-2224-2622-d2b48df2e0e6.htm">
+      <HelpTOCNode Id="c88a4a35-5521-4b88-8f00-183f2526961a" Title="SerialPort Methods" Url="html/ab741ea7-4252-2224-2622-d2b48df2e0e6.htm">
         <HelpTOCNode Title="Close Method " Url="html/1c433a60-2543-bdae-0d17-e4f64c217a27.htm" />
-        <HelpTOCNode Id="8ae4ea3b-f5c6-46ad-b9ba-bb3f93cfc0a5" Title="Dispose Method " Url="html/36978e79-454e-a4a2-ca17-9bd3e9f8fb18.htm">
+        <HelpTOCNode Id="5aa29ab9-c23d-4efe-9dd1-b865684ce5b4" Title="Dispose Method " Url="html/36978e79-454e-a4a2-ca17-9bd3e9f8fb18.htm">
           <HelpTOCNode Title="Dispose Method " Url="html/92aa0590-8c1a-febb-14ea-22a02fd768e2.htm" />
           <HelpTOCNode Title="Dispose Method (Boolean)" Url="html/c7a2adac-9fb1-d669-82d2-365eff29aeb0.htm" />
         </HelpTOCNode>
@@ -37,16 +66,13 @@
         <HelpTOCNode Title="Open Method " Url="html/2d1367cc-fb48-b912-b6b4-2a86d8559e71.htm" />
         <HelpTOCNode Title="Read Method " Url="html/b976f4a3-dc23-b96f-7410-e5c8df8dd327.htm" />
         <HelpTOCNode Title="ReadAll Method " Url="html/eaea9b08-f6c4-89fd-fe73-8153fec420d7.htm" />
-        <HelpTOCNode Title="Run Method " Url="html/05b1549d-52d6-2e85-d86e-9fd6c6ac2034.htm" />
-        <HelpTOCNode Title="Stop Method " Url="html/9b7b1b69-3795-af50-f905-0dd005961a07.htm" />
+        <HelpTOCNode Title="RunAsync Method " Url="html/4f88db3b-5b0b-0e03-47f6-2d5d61a8afe7.htm" />
+        <HelpTOCNode Title="StopAsync Method " Url="html/05ded893-9aa6-1213-78c5-3a2300f10828.htm" />
         <HelpTOCNode Title="Write Method " Url="html/1695adea-80a9-861c-9519-11290bbd24f2.htm" />
         <HelpTOCNode Title="WriteAll Method " Url="html/3829629a-9287-edfe-5362-64465c7b169b.htm" />
       </HelpTOCNode>
-      <HelpTOCNode Id="14798a6b-f097-4a89-9d29-3f5b92062a46" Title="SerialPort Events" Url="html/1c458234-101a-f68b-0bbf-b9ad7d3e25e2.htm">
+      <HelpTOCNode Id="df70ea41-ac60-46f2-ae88-1ae432e3f0bd" Title="SerialPort Events" Url="html/1c458234-101a-f68b-0bbf-b9ad7d3e25e2.htm">
         <HelpTOCNode Title="DataReceived Event" Url="html/d53d37a1-55a1-2dfd-ff8f-6b44cf8bfb9c.htm" />
-      </HelpTOCNode>
-      <HelpTOCNode Id="70115cdf-8325-4f16-b42a-13d2316ab679" Title="SerialPort Fields" Url="html/10854f84-2ab2-b7b0-bdfb-27a737e07305.htm">
-        <HelpTOCNode Title="Async Field" Url="html/ec782a4d-ecc0-8edc-7e9b-5ce1e095d43a.htm" />
       </HelpTOCNode>
     </HelpTOCNode>
     <HelpTOCNode Title="StopBits Enumeration" Url="html/74432bb0-c44b-8a90-31b1-b1b6cb981f31.htm" />
