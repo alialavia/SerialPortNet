@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace SerialPortNET
 {	
 	[StructLayout(LayoutKind.Sequential)]
-	public struct termios {
+	internal struct termios {
 		public int    c_iflag;    /* input flags */
 		public int    c_oflag;    /* output flags */
 		public int    c_cflag;    /* control flags */
@@ -17,7 +17,7 @@ namespace SerialPortNET
 		public int        c_ospeed;   /* output speed */
 	}
 
-	public static class  Externs
+	internal static class  Externs
 	{
 		// TODO: Fix libc.so.6 to a portable alternative
 		[DllImport ("libc.so.6")]

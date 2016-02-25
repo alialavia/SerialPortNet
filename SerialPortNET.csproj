@@ -37,6 +37,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ILowLevelSerialPort.cs" />
     <Compile Include="ISerialPort.cs" />
     <Compile Include="NamespaceDoc.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -47,8 +48,6 @@
     <Compile Include="Helper.cs" />
     <Compile Include="Ubuntu.cs" />
     <Compile Include="SerialPortWin32.cs" />
-    <Compile Include="AbstractSerialPort.cs" />
-    <Compile Include="SerialPorts.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

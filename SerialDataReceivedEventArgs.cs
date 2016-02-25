@@ -18,9 +18,18 @@ namespace SerialPortNET
         }
     }
 
+    /// <summary>
+    /// SerialData type stored in by <see cref="SerialDataReceivedEventArgs"/>.
+    /// </summary>
 	public enum SerialData
 	{
+        /// <summary>
+        /// If received data is normal character
+        /// </summary>
 		Chars,
+        /// <summary>
+        /// If received data is End Of File character
+        /// </summary>
 		Eof
 	}
 }

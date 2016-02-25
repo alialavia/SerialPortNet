@@ -10,7 +10,7 @@ namespace SerialPortNET
     /// <summary>
     /// Mono implementation of SerialPort is incomplete. This is to make up for that.
     /// </summary>
-	public class SerialPortWin32 : AbstractSerialPort
+	internal class SerialPortWin32 : ILowLevelSerialPort
     {
         #region Public Constructors
 
@@ -22,10 +22,9 @@ namespace SerialPortNET
         /// <param name="parity">Parity</param>
         /// <param name="dataBits">Number of data bits (7, 8, ...)</param>
         /// <param name="stopBits">Stop bits</param>
-        public SerialPortWin32(String portName, int baudRate, Parity parity, byte dataBits, StopBits stopBits) : base(portName, baudRate, parity, dataBits, stopBits)
+        public SerialPortWin32(String portName, int baudRate, Parity parity, byte dataBits, StopBits stopBits)
         {
             this.IsOpen = false;
-            base.IsRunning = false;
             this.PortName = portName;
 
             // parameters
@@ -46,7 +45,7 @@ namespace SerialPortNET
         /// <exception cref="IOException">
         /// Raises IOException if cannot open port, or if some error happened during reading or writing port settings. Read the exception message to clarify.
         /// </exception>
-        public override void Open()
+        public void Open()
         {
             serialHandle = NativeMethods.CreateFile("\\\\.\\" + this.PortName, (uint)(EFileAccess.FILE_GENERIC_READ | EFileAccess.FILE_GENERIC_WRITE), 0, IntPtr.Zero, (uint)ECreationDisposition.OpenExisting, (uint)EFileAttributes.Normal, IntPtr.Zero);
             if (serialHandle.IsInvalid)
@@ -75,7 +74,7 @@ namespace SerialPortNET
         /// <param name="offset">The offset in <paramref name="buffer"/> at which to write the bytes. </param>
         /// <param name="count">The maximum number of bytes to read. Fewer bytes are read if count is greater than the number of bytes in the input buffer. </param>
         /// <exception cref="IOException">Raises IOException on failure. Read exception message to clarify.</exception>
-        public override void Read(byte[] buffer, int offset, int count)
+        public void Read(byte[] buffer, int offset, int count)
         {
             //serialStream.Read(buffer, offset, count); ;
             uint bytesRead = 0;
@@ -96,7 +95,7 @@ namespace SerialPortNET
         /// <param name="buffer">The byte array that contains the data to write to the port.</param>
         /// <param name="offset">The zero-based byte offset in the <paramref name="buffer"/> parameter at which to begin copying bytes to the port.</param>
         /// <param name="count">The number of bytes to write. </param>
-        public override void Write(byte[] buffer, int offset, int count)
+        public void Write(byte[] buffer, int offset, int count)
         {
             //serialStream.Write(buffer, offset, count);
             uint bytesWrote = 0;
@@ -156,9 +155,49 @@ namespace SerialPortNET
                 throw new IOException("SetCommState error!");
         }
 
-        protected override void DisposeUnmanagedResources()
+        /// <summary>
+        /// Dispose all unmanaged resources
+        /// </summary>
+        public void DisposeUnmanagedResources()
         {
             serialHandle.Dispose();
+        }
+
+
+        /// <summary>
+        /// Closes this serial port instance
+        /// </summary>
+        public void Close()
+        {
+            Dispose();
+            //NativeMethods.CloseHandle(serialHandle);
+        }
+
+        /// <summary>
+        /// Called when this object is disposed
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+
+        /// <summary>
+        /// Gets called when this instance is disposed.
+        /// </summary>
+        /// <param name="disposing"></param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                DisposeUnmanagedResources();
+            }
+
+            disposed = true;
         }
 
         #endregion Private Methods
@@ -168,12 +207,12 @@ namespace SerialPortNET
         /// <summary>
         /// Gets or sets the serial baud rate.
         /// </summary>
-        public override int BaudRate { get { return (int)GetParams().BaudRate; } set { _baudRate = value; SetParams(); } }
+        public int BaudRate { get { return (int)GetParams().BaudRate; } set { _baudRate = value; SetParams(); } }
 
         /// <summary>
         /// Gets the number of bytes of data in the receive buffer.
         /// </summary>
-        public override int BytesToRead
+        public int BytesToRead
         {
             get
             {
@@ -184,7 +223,7 @@ namespace SerialPortNET
         /// <summary>
         /// Gets the number of bytes of data in the send buffer.
         /// </summary>
-        public override int BytesToWrite
+        public int BytesToWrite
         {
             get
             {
@@ -195,38 +234,33 @@ namespace SerialPortNET
         /// <summary>
         /// Gets or sets the standard length of data bits per byte.
         /// </summary>
-        public override byte DataBits { get { return GetParams().ByteSize; } set { _dataBits = value; SetParams(); } }
+        public byte DataBits { get { return GetParams().ByteSize; } set { _dataBits = value; SetParams(); } }
 
         /// <summary>
         /// Gets or sets a value that enables the Data Terminal Ready (DTR) signal during serial communication.
         /// </summary>
-        public override DtrControl DtrControl { get { return GetParams().DtrControl; } set { _dtrControl = value; SetParams(); } }
+        public DtrControl DtrControl { get { return GetParams().DtrControl; } set { _dtrControl = value; SetParams(); } }
 
         /// <summary>
         /// Gets a value indicating the open or closed status of the <see cref="SerialPort"/> object.
         /// </summary>
-        public override bool IsOpen { protected set; get; }
+        public bool IsOpen { protected set; get; }
 
 
         /// <summary>
         /// Gets or sets the parity-checking protocol.
         /// </summary>
-        public override Parity Parity { get { return GetParams().Parity; } set { _parity = value; SetParams(); } }
+        public Parity Parity { get { return GetParams().Parity; } set { _parity = value; SetParams(); } }
 
         /// <summary>
         /// Gets or sets the port for communications, including but not limited to all available COM ports.
         /// </summary>
-        public override string PortName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the number of bytes in the internal input buffer before a <see cref="DataReceived"/> event occurs.
-        /// </summary>
-        public override int ReceivedBytesThreshold { get; set; }
+        public string PortName { get; set; }
 
         /// <summary>
         /// Gets or sets the standard number of stop bits per byte.
         /// </summary>
-        public override StopBits StopBits { get { return GetParams().StopBits; } set { _stopBits = value; SetParams(); } }
+        public  StopBits StopBits { get { return GetParams().StopBits; } set { _stopBits = value; SetParams(); } }
 
         #endregion Public Properties
 
@@ -240,6 +274,7 @@ namespace SerialPortNET
 
         //FileStream serialStream;
         private SafeFileHandle serialHandle;
+        private bool disposed;
 
         #endregion Private Fields
     }

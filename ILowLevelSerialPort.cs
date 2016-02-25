@@ -3,9 +3,9 @@
 namespace SerialPortNET
 {
     /// <summary>
-    /// All SerialPort objects in SerialPortNET should implement this interface.
+    /// Interface for different classes communicating with serial port through different system calls
     /// </summary>
-    public interface ISerialPort : IDisposable
+    public interface ILowLevelSerialPort : IDisposable
     {
         #region Public Methods
 
@@ -13,6 +13,11 @@ namespace SerialPortNET
         /// Closes this serial port instance.
         /// </summary>
         void Close();
+
+        /// <summary>
+        /// Implementer should dispose all unmanaged resources here.
+        /// </summary>
+        void DisposeUnmanagedResources();
 
         /// <summary>
         /// Opens the port.
@@ -28,22 +33,6 @@ namespace SerialPortNET
         void Read(byte[] buffer, int offset, int count);
 
         /// <summary>
-        /// Reads all bytes from the SerialPort input buffer.
-        /// </summary>
-        /// <returns>An array containing the read data</returns>
-        byte[] ReadAll();
-
-        /// <summary>
-        /// Run asynchronous operation.
-        /// </summary>
-        void RunAsync();
-
-        /// <summary>
-        /// Stop the asynchronous operation.
-        /// </summary>
-        void StopAsync();
-
-        /// <summary>
         /// Writes a specified number of bytes to the serial port using data from a buffer.
         /// </summary>
         /// <param name="buffer">The byte array that contains the data to write to the port.</param>
@@ -51,22 +40,7 @@ namespace SerialPortNET
         /// <param name="count">The number of bytes to write. </param>
         void Write(byte[] buffer, int offset, int count);
 
-        /// <summary>
-        /// Writes all bytes to the serial port.
-        /// </summary>
-        /// <param name="buffer">The byte array that contains the data to write to the port.</param>
-        void WriteAll(byte[] buffer);
-
         #endregion Public Methods
-
-        #region Public Events
-
-        /// <summary>
-        /// If RunAsync() is called, this event is raised when new data is available in the input buffer of the serial port.
-        /// </summary>
-        event SerialDataReceivedEventHandler DataReceived;
-
-        #endregion Public Events
 
         #region Public Properties
 
@@ -101,11 +75,6 @@ namespace SerialPortNET
         bool IsOpen { get; }
 
         /// <summary>
-        /// Gets a value indicating the running status of the <see cref="SerialPort"/> object.
-        /// </summary>
-        bool IsRunning { get; }
-
-        /// <summary>
         /// Gets or sets the parity-checking protocol.
         /// </summary>
         Parity Parity { get; set; }
@@ -114,11 +83,6 @@ namespace SerialPortNET
         /// Gets or sets the port for communications, including but not limited to all available COM ports.
         /// </summary>
         string PortName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the number of bytes in the internal input buffer before a <see cref="DataReceived"/> event occurs.
-        /// </summary>
-        int ReceivedBytesThreshold { get; set; }
 
         /// <summary>
         /// Gets or sets the standard number of stop bits per byte.
