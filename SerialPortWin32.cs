@@ -12,9 +12,8 @@ namespace SerialPortNET
     /// <summary>
     /// Mono implementation of SerialPort is incomplete. This is to make up for that.
     /// </summary>
-    public class SerialPort : ISerialPort
+	public class SerialPortWin32 : AbstractSerialPort
     {
-
         #region Public Constructors
 
         /// <summary>
@@ -25,7 +24,7 @@ namespace SerialPortNET
         /// <param name="parity">Parity</param>
         /// <param name="dataBits">Number of data bits (7, 8, ...)</param>
         /// <param name="stopBits">Stop bits</param>
-        public SerialPort(string portName, int baudRate, Parity parity, byte dataBits, StopBits stopBits)
+        public SerialPortWin32(string portName, int baudRate, Parity parity, byte dataBits, StopBits stopBits)
         {
             this.IsOpen = false;
             this.IsRunning = false;
@@ -41,43 +40,7 @@ namespace SerialPortNET
 
         #endregion Public Constructors
 
-        #region Public Methods
-
-        /// <summary>
-        /// Enumerate all the serial ports and their respected device name by accessing the registry.
-        /// </summary>
-        /// <returns>A dictionary containing device names (e.g. USBSER000, Serial1, ...) and port names (e.g. COM1, COM20, ...), as keys and values respectively. </returns>
-        public static Dictionary<String, String> EnumerateSerialPorts()
-        {
-            const string keyname = @"HARDWARE\DEVICEMAP\SERIALCOMM";
-            var keys = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(keyname);
-            var valueNames = keys.GetValueNames();
-            var res = new Dictionary<String, String>();
-            foreach (var k in valueNames)
-            {
-                res.Add(k, keys.GetValue(k) as String);
-            }
-            return res;
-        }
-
-        /// <summary>
-        /// Closes this serial port instance
-        /// </summary>
-        public void Close()
-        {
-            Dispose();
-            //NativeMethods.CloseHandle(serialHandle);
-        }
-
-        /// <summary>
-        /// Called when this object is disposed
-        /// </summary>
-        public void Dispose()
-        {
-            Debug.WriteLine("SerialPort Disposed!");
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        #region Public Methods	
 
         /// <summary>
         /// Opens the port.
@@ -395,8 +358,6 @@ namespace SerialPortNET
 
         //FileStream serialStream;
         private SafeFileHandle serialHandle;
-
-        private object synclock = new object();
 
         #endregion Private Fields
 

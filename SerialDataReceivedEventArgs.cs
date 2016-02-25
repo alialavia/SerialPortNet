@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO.Ports;
 using System.Text;
-
 namespace SerialPortNET
 {
     /// <summary>
@@ -15,8 +13,14 @@ namespace SerialPortNET
         /// </summary>
         public SerialData EventType { get; private set; }        
         internal SerialDataReceivedEventArgs(SerialData eventType)
-        {
-            EventType = eventType;
+        {			
+			EventType = eventType;
         }
     }
+
+	public enum SerialData
+	{
+		Chars,
+		Eof
+	}
 }

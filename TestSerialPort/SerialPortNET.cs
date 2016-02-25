@@ -8,7 +8,7 @@ namespace Ubuntu
 		{
 		}
 
-		public 
+
 	}
 }
 
