@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 namespace SerialPortNET
 {
@@ -23,6 +24,7 @@ namespace SerialPortNET
         /// <param name="stopBits">Stop bits</param>
         public SerialPort(string portName, int baudRate, Parity parity, byte dataBits, StopBits stopBits)
         {
+			NewLine = "\r\n";
             switch (Helper.RunningPlatform())
             {
                 case Platform.Windows:
@@ -30,7 +32,8 @@ namespace SerialPortNET
                     break;
 
                 case Platform.Linux:
-                    throw new NotImplementedException();
+					lowLevelSerialPort = new SerialPortPOSIX(portName, baudRate, parity, dataBits, stopBits);
+					break;
                 case Platform.Mac:
                     throw new NotImplementedException();
                 default:
@@ -119,10 +122,39 @@ namespace SerialPortNET
         /// <returns>An array containing the read data</returns>
         public virtual byte[] ReadAll()
         {
-            byte[] buffer = new byte[this.BytesToRead];
-            Read(buffer, 0, BytesToRead);
+			int btr = this.BytesToRead;
+			byte[] buffer = new byte[btr];
+			Read(buffer, 0, btr);
             return buffer;
         }
+
+		public string ReadLine()
+		{
+			//StringBuilder sb = new StringBuilder (BytesToRead);
+			List<byte> bytes = new List<byte> ();
+			char[] newLineCharArray = NewLine.ToCharArray ();
+			while (true) {
+				if (lowLevelSerialPort.BytesToRead < 1)
+					continue;
+				byte[] buffer = new byte[1];
+				lowLevelSerialPort.Read (buffer, 0, 1);
+				bytes.Add(buffer [0]);
+				if (bytes.Count < NewLine.Length)
+					continue;
+				
+				bool foundNewLine = true;
+				for (int i = 0; i < NewLine.Length; i++)
+					if (bytes [bytes.Count - i - 1] != newLineCharArray [NewLine.Length - i - 1]) {
+						foundNewLine = false;
+						break;
+					}
+				if (foundNewLine)
+					return System.Text.Encoding.Default.GetString(bytes.ToArray(), 0, bytes.Count - NewLine.Length);					
+			}
+
+		}
+
+		public string NewLine { get; set; }
 
         /// <summary>
         /// Run asynchronous operation.
@@ -135,10 +167,12 @@ namespace SerialPortNET
                 return;
 
             bgWorker.DoWork += new DoWorkEventHandler(BgWorker_DoWork);
+			bgWorker.RunWorkerCompleted += BgWorker_RunWorkerCompleted;
             bgWorker.RunWorkerAsync();
 
             IsRunning = true;
         }
+			
 
         /// <summary>
         /// Stop the asynchronous operation.
@@ -211,15 +245,19 @@ namespace SerialPortNET
         #region Private Methods
 
         private void BgWorker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            while (true)
+        {           
             {
                 if (this.BytesToRead >= this.ReceivedBytesThreshold)
                 {
                     OnDataReceived();
                 }
-            }
+			}
         }
+
+		private void BgWorker_RunWorkerCompleted (object sender, RunWorkerCompletedEventArgs e)
+		{
+			(sender as BackgroundWorker).RunWorkerAsync();
+		}
 
         #endregion Private Methods
 

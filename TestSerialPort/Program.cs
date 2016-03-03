@@ -5,6 +5,10 @@ using Microsoft.Win32.SafeHandles;
 using System.Runtime.InteropServices;
 using System.Threading;
 using SerialPortNET;
+using System.Collections.Generic;
+using System.Reflection;
+using SerialPortNET;
+using System.Text;
 
 namespace TestSerialPort
 {
@@ -12,18 +16,25 @@ namespace TestSerialPort
 	{
 		public static void Main (string[] args)
 		{
-            AbstractTest AT = new AbstractTest();
-            Console.WriteLine("AbstractTest.t = {0}", AT.t);
+			// Used for performance measurement
+			/* 
+			DateTime t;
+			TimeSpan s;
+			t = DateTime.Now;
+			*/
 
-            AbstractTest T1 = new AbstractTest();
-            Console.WriteLine("AbstractTest.t = {0}", AT.t);
+			var sp = new SerialPort("/dev/ttyACM0", 115200, Parity.None, 8, StopBits.One);
+			sp.DataReceived += (object sender, SerialDataReceivedEventArgs e) => {
+				var b = sp.ReadAll();
+				for (int i = 0; i < b.Length; i++)
+					Console.WriteLine (b[i]);
+			};
 
-            AbstractTest T2 = new AbstractTest();
-            Console.WriteLine("AbstractTest.t = {0}", AT.t);
+			sp.Open ();
+			sp.RunAsync ();
 
-            var s = new SerialPort("COM18", 9200, Parity.None, 8, StopBits.One);
-            s.Open();
-            Console.WriteLine(s.IsOpen);
-        }
+			Console.WriteLine ("{0}", sp.IsOpen);
+			Console.ReadKey ();
+		}
 	}
 }

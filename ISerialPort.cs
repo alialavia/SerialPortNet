@@ -31,7 +31,14 @@ namespace SerialPortNET
         /// Reads all bytes from the SerialPort input buffer.
         /// </summary>
         /// <returns>An array containing the read data</returns>
-        byte[] ReadAll();
+		byte[] ReadAll();
+
+		/// <summary>
+		/// Reads all bytes from the SerialPort input buffer.
+		/// </summary>
+		/// <returns>An array containing the read data</returns>
+		string ReadLine();
+
 
         /// <summary>
         /// Run asynchronous operation.
@@ -120,6 +127,7 @@ namespace SerialPortNET
         /// </summary>
         int ReceivedBytesThreshold { get; set; }
 
+		string NewLine { get; set; }
         /// <summary>
         /// Gets or sets the standard number of stop bits per byte.
         /// </summary>

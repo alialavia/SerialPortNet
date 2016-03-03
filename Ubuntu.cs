@@ -1,5 +1,11 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using MacroResolver;
+using Mono.Unix.Native;
 
 namespace SerialPortNET
 {	
@@ -17,8 +23,9 @@ namespace SerialPortNET
 		public int        c_ospeed;   /* output speed */
 	}
 
-	internal static class  Externs
+	internal static class Syscalls
 	{
+
 		// TODO: Fix libc.so.6 to a portable alternative
 		[DllImport ("libc.so.6")]
 		public static extern int tcgetattr(int fd, out termios t);
@@ -56,125 +63,148 @@ namespace SerialPortNET
 		[DllImport ("libc.so.6")]
 		public static extern int cfsetspeed(ref termios t, Int32 speed);
 
+		[DllImport ("libc.so.6")]
+		public static extern int ioctl(int fd, Int32 options, ref int status);
+
+		[DllImport ("libc.so.6")]
+		public static extern int fcntl(int fd, int cmd, int arg);
+	}		
+
+	public static class Macros
+	{
+		private static MacroHelper macroHelper = new MacroHelper(typeof( Macros), new String[]{"termios.h", "unistd.h", "sys/ioctl.h", "fcntl.h"}); 
+		public static int ICANON {get { return macroHelper.GetMacro(); }}
+		public static int ISIG {get { return macroHelper.GetMacro(); }}
+
+		public static int CNEW_RTSCTS {get { return macroHelper.GetMacro(); }}
+		public static int CRTSCTS {get { return macroHelper.GetMacro(); }}
+		public static int O_NDELAY {get { return macroHelper.GetMacro(); }}
+		public static int F_SETFL {get { return macroHelper.GetMacro(); }}
+		public static int FIONREAD {get { return macroHelper.GetMacro(); }}
 		/* c_cc characters */
-		public static int VINTR = 0;
-		public static int VQUIT = 1;
-		public static int VERASE = 2;
-		public static int VKILL = 3;
-		public static int VEOF = 4;
-		public static int VTIME = 5;
-		public static int VMIN = 6;
-		public static int VSWTC = 7;
-		public static int VSTART = 8;
-		public static int VSTOP = 9;
-		public static int VSUSP = 10;
-		public static int VEOL = 11;
-		public static int VREPRINT = 12;
-		public static int VDISCARD = 13;
-		public static int VWERASE = 14;
-		public static int VLNEXT = 15;
-		public static int VEOL2 = 16;
+		public static int VINTR {get { return macroHelper.GetMacro(); }}
+		public static int VQUIT {get { return macroHelper.GetMacro(); }}
+		public static int VERASE {get { return macroHelper.GetMacro(); }}
+		public static int VKILL {get { return macroHelper.GetMacro(); }}
+		public static int VEOF {get { return macroHelper.GetMacro(); }}
+		public static int VTIME {get { return macroHelper.GetMacro(); }}
+		public static int VMIN {get { return macroHelper.GetMacro(); }}
+		public static int VSWTC {get { return macroHelper.GetMacro(); }}
+		public static int VSTART {get { return macroHelper.GetMacro(); }}
+		public static int VSTOP {get { return macroHelper.GetMacro(); }}
+		public static int VSUSP {get { return macroHelper.GetMacro(); }}
+		public static int VEOL {get { return macroHelper.GetMacro(); }}
+		public static int VREPRINT {get { return macroHelper.GetMacro(); }}
+		public static int VDISCARD {get { return macroHelper.GetMacro(); }}
+		public static int VWERASE {get { return macroHelper.GetMacro(); }}
+		public static int VLNEXT {get { return macroHelper.GetMacro(); }}
+		public static int VEOL2 {get { return macroHelper.GetMacro(); }}
 
 		/* c_iflag bits */
-		public static int IGNBRK =  0000001;
-		public static int BRKINT =  0000002;
-		public static int IGNPAR =  0000004;
-		public static int PARMRK =  0000010;
-		public static int INPCK =   0000020;
-		public static int ISTRIP =  0000040;
-		public static int INLCR =   0000100;
-		public static int IGNCR =   0000200;
-		public static int ICRNL =   0000400;
-		public static int IUCLC =   0001000;
-		public static int IXON =    0002000;
-		public static int IXANY =   0004000;
-		public static int IXOFF =   0010000;
-		public static int IMAXBEL = 0020000;
-		public static int IUTF8 =   0040000;
+		public static int IGNBRK {get { return macroHelper.GetMacro(); }}
+		public static int BRKINT {get { return macroHelper.GetMacro(); }}
+		public static int IGNPAR {get { return macroHelper.GetMacro(); }}
+		public static int PARMRK {get { return macroHelper.GetMacro(); }}
+		public static int INPCK {get { return macroHelper.GetMacro(); }}
+		public static int ISTRIP {get { return macroHelper.GetMacro(); }}
+		public static int INLCR {get { return macroHelper.GetMacro(); }}
+		public static int IGNCR {get { return macroHelper.GetMacro(); }}
+		public static int ICRNL {get { return macroHelper.GetMacro(); }}
+		public static int IUCLC {get { return macroHelper.GetMacro(); }}
+		public static int IXON {get { return macroHelper.GetMacro(); }}
+		public static int IXANY {get { return macroHelper.GetMacro(); }}
+		public static int IXOFF {get { return macroHelper.GetMacro(); }}
+		public static int IMAXBEL {get { return macroHelper.GetMacro(); }}
+		public static int IUTF8 {get { return macroHelper.GetMacro(); }}
 
 		/* c_oflag bits */
-		public static int OPOST =   0000001;
-		public static int OLCUC =   0000002;
-		public static int ONLCR =   0000004;
-		public static int OCRNL =   0000010;
-		public static int ONOCR =   0000020;
-		public static int ONLRET =  0000040;
-		public static int OFILL =   0000100;
-		public static int OFDEL =   0000200;
+		public static int OPOST {get { return macroHelper.GetMacro(); }}
+		public static int OLCUC {get { return macroHelper.GetMacro(); }}
+		public static int ONLCR {get { return macroHelper.GetMacro(); }}
+		public static int OCRNL {get { return macroHelper.GetMacro(); }}
+		public static int ONOCR {get { return macroHelper.GetMacro(); }}
+		public static int ONLRET {get { return macroHelper.GetMacro(); }}
+		public static int OFILL {get { return macroHelper.GetMacro(); }}
+		public static int OFDEL {get { return macroHelper.GetMacro(); }}
 
-		public static int VTDLY =   0040000;
-		public static int   VT0 =   0000000;
-		public static int   VT1 =   0040000;
+		public static int VTDLY {get { return macroHelper.GetMacro(); }}
+		public static int   VT0 {get { return macroHelper.GetMacro(); }}
+		public static int   VT1 {get { return macroHelper.GetMacro(); }}
 
-		public static int  B0 = 0000000     /* hang up */;
-		public static int  B50 =    0000001;
-		public static int  B75 =    0000002;
-		public static int  B110 =   0000003;
-		public static int  B134 =   0000004;
-		public static int  B150 =   0000005;
-		public static int  B200 =   0000006;
-		public static int  B300 =   0000007;
-		public static int  B600 =   0000010;
-		public static int  B1200 =  0000011;
-		public static int  B1800 =  0000012;
-		public static int  B2400 =  0000013;
-		public static int  B4800 =  0000014;
-		public static int  B9600 =  0000015;
-		public static int  B19200 = 0000016;
-		public static int  B38400 = 0000017;
+		public static int B0 {get { return macroHelper.GetMacro(); }}     /* hang up */
+		public static int  B50 {get { return macroHelper.GetMacro(); }}
+		public static int  B75 {get { return macroHelper.GetMacro(); }}
+		public static int  B110 {get { return macroHelper.GetMacro(); }}
+		public static int  B134 {get { return macroHelper.GetMacro(); }}
+		public static int  B150 {get { return macroHelper.GetMacro(); }}
+		public static int  B200 {get { return macroHelper.GetMacro(); }}
+		public static int  B300 {get { return macroHelper.GetMacro(); }}
+		public static int  B600 {get { return macroHelper.GetMacro(); }}
+		public static int  B1200 {get { return macroHelper.GetMacro(); }}
+		public static int  B1800 {get { return macroHelper.GetMacro(); }}
+		public static int  B2400 {get { return macroHelper.GetMacro(); }}
+		public static int  B4800 {get { return macroHelper.GetMacro(); }}
+		public static int  B9600 {get { return macroHelper.GetMacro(); }}
+		public static int  B19200 {get { return macroHelper.GetMacro(); }}
+		public static int  B38400 {get { return macroHelper.GetMacro(); }}
+		public static int  B57600 {get { return macroHelper.GetMacro(); }}
+		public static int  B115200 {get { return macroHelper.GetMacro(); }}
+		public static int  B230400 {get { return macroHelper.GetMacro(); }}
+		public static int  B460800 {get { return macroHelper.GetMacro(); }}
+		public static int  B500000 {get { return macroHelper.GetMacro(); }}
+		public static int  B576000 {get { return macroHelper.GetMacro(); }}
+		public static int  B921600 {get { return macroHelper.GetMacro(); }}
+		public static int  B1000000 {get { return macroHelper.GetMacro(); }}
+		public static int  B1152000 {get { return macroHelper.GetMacro(); }}
+		public static int  B1500000 {get { return macroHelper.GetMacro(); }}
+		public static int  B2000000 {get { return macroHelper.GetMacro(); }}
+		public static int  B2500000 {get { return macroHelper.GetMacro(); }}
+		public static int  B3000000 {get { return macroHelper.GetMacro(); }}
+		public static int  B3500000 {get { return macroHelper.GetMacro(); }}
+		public static int  B4000000 {get { return macroHelper.GetMacro(); }}
+		public static int __MAX_BAUD {get { return macroHelper.GetMacro(); }}
 
-		public static int CSIZE =   0000060;
-		public static int   CS5 =   0000000;
-		public static int   CS6 =   0000020;
-		public static int   CS7 =   0000040;
-		public static int   CS8 =   0000060;
-		public static int CSTOPB =  0000100;
-		public static int CREAD =   0000200;
-		public static int PARENB =  0000400;
-		public static int PARODD =  0001000;
-		public static int HUPCL =   0002000;
-		public static int CLOCAL =  0004000;
+		public static int CSIZE {get { return macroHelper.GetMacro(); }}
+		public static int   CS5 {get { return macroHelper.GetMacro(); }}
+		public static int   CS6 {get { return macroHelper.GetMacro(); }}
+		public static int   CS7 {get { return macroHelper.GetMacro(); }}
+		public static int   CS8 {get { return macroHelper.GetMacro(); }}
+		public static int CSTOPB {get { return macroHelper.GetMacro(); }}
+		public static int CREAD {get { return macroHelper.GetMacro(); }}
+		public static int PARENB {get { return macroHelper.GetMacro(); }}
+		public static int PARODD {get { return macroHelper.GetMacro(); }}
+		public static int HUPCL {get { return macroHelper.GetMacro(); }}
+		public static int CLOCAL {get { return macroHelper.GetMacro(); }}
 
-		public static int  B57600 =   0010001;
-		public static int  B115200 =  0010002;
-		public static int  B230400 =  0010003;
-		public static int  B460800 =  0010004;
-		public static int  B500000 =  0010005;
-		public static int  B576000 =  0010006;
-		public static int  B921600 =  0010007;
-		public static int  B1000000 = 0010010;
-		public static int  B1152000 = 0010011;
-		public static int  B1500000 = 0010012;
-		public static int  B2000000 = 0010013;
-		public static int  B2500000 = 0010014;
-		public static int  B3000000 = 0010015;
-		public static int  B3500000 = 0010016;
-		public static int  B4000000 = 0010017;
-		public static int __MAX_BAUD = B4000000;
-
-		public static int ECHO =    0000010;
-		public static int ECHOE =   0000020;
-		public static int ECHOK =   0000040;
-		public static int ECHONL =  0000100;
-		public static int NOFLSH =  0000200;
-		public static int TOSTOP =  0000400;
+		public static int ECHO {get { return macroHelper.GetMacro(); }}
+		public static int ECHOE {get { return macroHelper.GetMacro(); }}
+		public static int ECHOK {get { return macroHelper.GetMacro(); }}
+		public static int ECHONL {get { return macroHelper.GetMacro(); }}
+		public static int NOFLSH {get { return macroHelper.GetMacro(); }}
+		public static int TOSTOP {get { return macroHelper.GetMacro(); }}
 
 		/* tcflow() and TCXONC use these */
-		public static int TCOOFF =      0;
-		public static int TCOON =       1;
-		public static int TCIOFF =      2;
-		public static int TCION =       3;
+		public static int TCOOFF {get { return macroHelper.GetMacro(); }}
+		public static int TCOON {get { return macroHelper.GetMacro(); }}
+		public static int TCIOFF {get { return macroHelper.GetMacro(); }}
+		public static int TCION {get { return macroHelper.GetMacro(); }}
 
 		/* tcflush() and TCFLSH use these */
-		public static int TCIFLUSH =    0;
-		public static int TCOFLUSH =    1;
-		public static int TCIOFLUSH =   2;
+		public static int TCIFLUSH {get { return macroHelper.GetMacro(); }}
+		public static int TCOFLUSH {get { return macroHelper.GetMacro(); }}
+		public static int TCIOFLUSH {get { return macroHelper.GetMacro(); }}
 
 		/* tcsetattr uses these */
-		public static int TCSANOW =     0;
-		public static int TCSADRAIN =   1;
-		public static int TCSAFLUSH =   2;
+		public static int TCSANOW {get { return macroHelper.GetMacro(); }}
+		public static int TCSADRAIN {get { return macroHelper.GetMacro(); }}
+		public static int TCSAFLUSH {get { return macroHelper.GetMacro(); }}
 
-	}		
+		/* ioctl settings */
+
+		public static int TIOCMGET{get { return macroHelper.GetMacro(); }}
+		public static int TIOCMSET{get { return macroHelper.GetMacro(); }}
+		public static int TIOCM_DTR{get { return macroHelper.GetMacro(); }}
+	}
+
 }
 
