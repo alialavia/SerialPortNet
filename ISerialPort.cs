@@ -41,16 +41,6 @@ namespace SerialPortNET
 
 
         /// <summary>
-        /// Run asynchronous operation.
-        /// </summary>
-        void RunAsync();
-
-        /// <summary>
-        /// Stop the asynchronous operation.
-        /// </summary>
-        void StopAsync();
-
-        /// <summary>
         /// Writes a specified number of bytes to the serial port using data from a buffer.
         /// </summary>
         /// <param name="buffer">The byte array that contains the data to write to the port.</param>
@@ -64,6 +54,10 @@ namespace SerialPortNET
         /// <param name="buffer">The byte array that contains the data to write to the port.</param>
         void WriteAll(byte[] buffer);
 
+        void RunAsync();
+        void StopAsync();
+
+        void Flush(FlushMode mode);
         #endregion Public Methods
 
         #region Public Events

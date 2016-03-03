@@ -29,9 +29,11 @@ namespace SerialPortNET
 			this._dtrControl = DtrControl.Enable; // Default
 		}
 
+        public SerialPortPOSIX()
+        {
+        }
 
-
-		public int BaudRate {
+        public int BaudRate {
 			get {
 				return _baudRate;
 			}
@@ -294,8 +296,8 @@ namespace SerialPortNET
 			termios check = getOptions ();
 			if (check.c_iflag != options.c_iflag)
 				throw new InvalidOperationException ();
-
 		}
+        
 
 		private static int findByteSize (byte dataBits)
 		{
@@ -337,5 +339,26 @@ namespace SerialPortNET
 				throw new IOException ("Cannot write to the port.");
 
 		}
-	}
+
+        public Dictionary<string, string> GetPortNames()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Flushes input and output buffers
+        /// </summary>
+        public void Flush(FlushMode mode)
+        {
+            int queueSelector;
+            if (mode == FlushMode.Input)
+                queueSelector = Macros.TCIFLUSH;
+            else if (mode == FlushMode.Output)
+                queueSelector = Macros.TCOFLUSH;
+            else
+                queueSelector = Macros.TCIOFLUSH;
+
+            Syscalls.tcflush(_FileDescriptor, queueSelector);
+        }
+    }
 }

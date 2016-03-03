@@ -21,4 +21,9 @@ namespace TestSerialPort
         //public override int t { get { return b; } set { b = value; } }
     }
 
+    abstract class test
+    {
+        public abstract void a();
+    }
+
 }

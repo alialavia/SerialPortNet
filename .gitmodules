@@ -1,0 +1,3 @@
+[submodule "MacroResolver"]
+	path = MacroResolver
+	url = https://github.com/alialavia/MacroResolver

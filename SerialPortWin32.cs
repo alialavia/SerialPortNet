@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -35,6 +36,10 @@ namespace SerialPortNET
             this._dtrControl = DtrControl.Enable; // Default
         }
 
+        public SerialPortWin32()
+        {
+        }
+
         #endregion Public Constructors
 
         #region Public Methods
@@ -50,21 +55,36 @@ namespace SerialPortNET
             serialHandle = NativeMethods.CreateFile("\\\\.\\" + this.PortName, (uint)(EFileAccess.FILE_GENERIC_READ | EFileAccess.FILE_GENERIC_WRITE), 0, IntPtr.Zero, (uint)ECreationDisposition.OpenExisting, (uint)EFileAttributes.Normal, IntPtr.Zero);
             if (serialHandle.IsInvalid)
                 throw new IOException("Cannot open " + this.PortName);
+            // Flush the input and output buffer and abort all outstanding overlapped read and write operations 
 
-            SetParams();
+
+            Debug.WriteLine("Before :" + BytesToRead.ToString());
 
             COMMTIMEOUTS timeout = new COMMTIMEOUTS();
-            timeout.ReadIntervalTimeout = 50;
-            timeout.ReadTotalTimeoutConstant = 50;
-            timeout.ReadTotalTimeoutMultiplier = 50;
-            timeout.WriteTotalTimeoutConstant = 50;
-            timeout.WriteTotalTimeoutMultiplier = 10;
+            timeout.ReadIntervalTimeout = 0;
+            timeout.ReadTotalTimeoutConstant = 0;
+            timeout.ReadTotalTimeoutMultiplier = 0;
+            timeout.WriteTotalTimeoutConstant = 0;
+            timeout.WriteTotalTimeoutMultiplier = 0;
 
             if (!NativeMethods.SetCommTimeouts(serialHandle, ref timeout))
                 throw new IOException("SetCommTimeouts error!");
 
-            NativeMethods.PurgeComm(serialHandle, (uint)(0xF));
+            SetParams();
             IsOpen = true;
+        }
+
+        public void Flush(FlushMode mode)
+        {
+            PurgeFlags purgeFlag;
+            if (mode == FlushMode.Input)
+                purgeFlag = PurgeFlags.RxClear;
+            else if (mode == FlushMode.Output)
+                purgeFlag = PurgeFlags.TxClear;
+            else
+                purgeFlag = PurgeFlags.RxClear | PurgeFlags.TxClear;
+
+            NativeMethods.PurgeComm(serialHandle, (uint)(purgeFlag));
         }
 
         /// <summary>
@@ -130,6 +150,19 @@ namespace SerialPortNET
             return serialParams;
         }
 
+        public Dictionary<String, String> GetPortNames()
+        {
+            Dictionary<String, String> res = new Dictionary<string, string>();
+            const string keyname = @"HARDWARE\DEVICEMAP\SERIALCOMM";
+            var keys = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(keyname);
+            var valueNames = keys.GetValueNames();
+
+            foreach (var k in valueNames)
+            {
+                res.Add(k, keys.GetValue(k) as String);
+            }
+            return res;
+        }
         private COMSTAT getStats()
         {
             uint flags = 0;
@@ -260,7 +293,7 @@ namespace SerialPortNET
         /// <summary>
         /// Gets or sets the standard number of stop bits per byte.
         /// </summary>
-        public  StopBits StopBits { get { return GetParams().StopBits; } set { _stopBits = value; SetParams(); } }
+        public StopBits StopBits { get { return GetParams().StopBits; } set { _stopBits = value; SetParams(); } }
 
         #endregion Public Properties
 

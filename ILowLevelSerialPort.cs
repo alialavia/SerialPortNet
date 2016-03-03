@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SerialPortNET
 {
@@ -40,6 +41,7 @@ namespace SerialPortNET
         /// <param name="count">The number of bytes to write. </param>
         void Write(byte[] buffer, int offset, int count);
 
+        void Flush(FlushMode mode);
         #endregion Public Methods
 
         #region Public Properties
@@ -48,6 +50,8 @@ namespace SerialPortNET
         /// Gets or sets the serial baud rate.
         /// </summary>
         int BaudRate { get; set; }
+
+        Dictionary<string, string> GetPortNames();
 
         /// <summary>
         /// Gets the number of bytes of data in the receive buffer.
@@ -90,5 +94,7 @@ namespace SerialPortNET
         StopBits StopBits { get; set; }
 
         #endregion Public Properties
+
+
     }
 }

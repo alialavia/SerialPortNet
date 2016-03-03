@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace SerialPortNET
@@ -15,30 +15,49 @@ namespace SerialPortNET
         #region Public Constructors
 
         /// <summary>
-        /// Creates a new Serial Port
+        /// This will create a temporary serial port depending on the operating system.
+        /// It also finds the related constructor to call it from <see cref="SerialPort"/> constructor.
         /// </summary>
-        /// <param name="portName">Name of the port (COM1, ...)</param>
-        /// <param name="baudRate">Baud rate (9600, 115200, ...) </param>
-        /// <param name="parity">Parity</param>
-        /// <param name="dataBits">Number of data bits (7, 8, ...)</param>
-        /// <param name="stopBits">Stop bits</param>
-        public SerialPort(string portName, int baudRate, Parity parity, byte dataBits, StopBits stopBits)
+        static SerialPort()
         {
-			NewLine = "\r\n";
-            switch (Helper.RunningPlatform())
+            switch (Helper.RunningPlatform)
             {
                 case Platform.Windows:
-                    lowLevelSerialPort = new SerialPortWin32(portName, baudRate, parity, dataBits, stopBits);
+                    tempSerialPort = new SerialPortWin32();
                     break;
 
                 case Platform.Linux:
-					lowLevelSerialPort = new SerialPortPOSIX(portName, baudRate, parity, dataBits, stopBits);
-					break;
+                    tempSerialPort = new SerialPortPOSIX();
+                    break;
+
                 case Platform.Mac:
                     throw new NotImplementedException();
                 default:
                     throw new NotImplementedException();
             }
+            serialConstructor = (tempSerialPort.GetType()).GetConstructor(new Type[] {
+                typeof(string), typeof(int), typeof(Parity), typeof(byte), typeof(StopBits) });
+        }
+
+        public string ReadExisting()
+        {
+            return Encoding.ASCII.GetString(ReadAll());
+        }
+
+        /// <summary>
+        /// Creates a new Serial Port
+        /// </summary>
+        /// <param name="portName">Name of the port (COM1, ...)</param>
+        /// <param name="baudRate">Baud rate (9600, 115200, ...) </param>
+        /// <param name="parity">Parity</param>
+        /// <param name="dataBits">Number of data bits (5, 6, 7, or 8)</param>
+        /// <param name="stopBits">Stop bits</param>
+        public SerialPort(string portName, int baudRate, Parity parity, byte dataBits, StopBits stopBits)
+        {
+            NewLine = "\r\n";
+            lowLevelSerialPort =
+                (ILowLevelSerialPort)serialConstructor
+                .Invoke(new object[] { portName, baudRate, parity, dataBits, stopBits });
         }
 
         #endregion Public Constructors
@@ -49,30 +68,9 @@ namespace SerialPortNET
         /// Enumerate all the serial ports and their respected device name by accessing the registry.
         /// </summary>
         /// <returns>A dictionary containing device names (e.g. USBSER000, Serial1, ...) and port names (e.g. COM1, COM20, ...), as keys and values respectively. </returns>
-        public static Dictionary<String, String> EnumerateSerialPorts()
+        public static Dictionary<String, String> GetPortNames()
         {
-            var res = new Dictionary<String, String>();
-            switch (Helper.RunningPlatform())
-            {
-                case Platform.Windows:
-                    const string keyname = @"HARDWARE\DEVICEMAP\SERIALCOMM";
-                    var keys = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(keyname);
-                    var valueNames = keys.GetValueNames();
-
-                    foreach (var k in valueNames)
-                    {
-                        res.Add(k, keys.GetValue(k) as String);
-                    }
-                    break;
-
-                case Platform.Linux:
-                    throw new NotImplementedException();
-                case Platform.Mac:
-                    throw new NotImplementedException();
-                default:
-                    throw new NotImplementedException();
-            }
-            return res;
+            return tempSerialPort.GetPortNames();
         }
 
         /// <summary>
@@ -80,6 +78,7 @@ namespace SerialPortNET
         /// </summary>
         public void Close()
         {
+            StopAsync();
             Dispose();
         }
 
@@ -102,14 +101,16 @@ namespace SerialPortNET
         public void Open()
         {
             lowLevelSerialPort.Open();
+            Flush();
         }
+        
 
         /// <summary>
         /// Reads a number of bytes from the SerialPort input buffer and writes those bytes into a byte array at the specified offset.
         /// </summary>
-        /// <param name="buffer">The byte array to write the input to. </param>
-        /// <param name="offset">The offset in <paramref name="buffer"/> at which to write the bytes. </param>
-        /// <param name="count">The maximum number of bytes to read. Fewer bytes are read if count is greater than the number of bytes in the input buffer. </param>
+        /// <param name="buffer">The byte array to write the input to.</param>
+        /// <param name="offset">The offset in <paramref name="buffer"/> at which to write the bytes.</param>
+        /// <param name="count">The maximum number of bytes to read. Fewer bytes are read if count is greater than the number of bytes in the input buffer.</param>
         /// <exception cref="IOException">Raises IOException on failure. Read exception message to clarify.</exception>
         public void Read(byte[] buffer, int offset, int count)
         {
@@ -117,44 +118,47 @@ namespace SerialPortNET
         }
 
         /// <summary>
-        /// Reads all bytes from the SerialPort input buffer.
+        /// Reads all bytes from the input buffer.
         /// </summary>
         /// <returns>An array containing the read data</returns>
         public virtual byte[] ReadAll()
         {
-			int btr = this.BytesToRead;
-			byte[] buffer = new byte[btr];
-			Read(buffer, 0, btr);
+            int btr = this.BytesToRead;
+            byte[] buffer = new byte[btr];
+            Read(buffer, 0, btr);
             return buffer;
         }
 
-		public string ReadLine()
-		{
-			//StringBuilder sb = new StringBuilder (BytesToRead);
-			List<byte> bytes = new List<byte> ();
-			char[] newLineCharArray = NewLine.ToCharArray ();
-			while (true) {
-				if (lowLevelSerialPort.BytesToRead < 1)
-					continue;
-				byte[] buffer = new byte[1];
-				lowLevelSerialPort.Read (buffer, 0, 1);
-				bytes.Add(buffer [0]);
-				if (bytes.Count < NewLine.Length)
-					continue;
-				
-				bool foundNewLine = true;
-				for (int i = 0; i < NewLine.Length; i++)
-					if (bytes [bytes.Count - i - 1] != newLineCharArray [NewLine.Length - i - 1]) {
-						foundNewLine = false;
-						break;
-					}
-				if (foundNewLine)
-					return System.Text.Encoding.Default.GetString(bytes.ToArray(), 0, bytes.Count - NewLine.Length);					
-			}
+        /// <summary>
+        /// Reads all bytes from the input buffer. Will read the <see cref="NewLine"/> character(s) but will not return it.
+        /// Note that this functions blocks until NewLine is seen.
+        /// </summary>
+        /// <returns></returns>
+        public string ReadLine()
+        {
+            List<byte> bytes = new List<byte>();
+            char[] newLineCharArray = NewLine.ToCharArray();
+            while (true)
+            {
+                if (lowLevelSerialPort.BytesToRead < 1)
+                    continue;
+                byte[] buffer = new byte[1];
+                lowLevelSerialPort.Read(buffer, 0, 1);
+                bytes.Add(buffer[0]);
+                if (bytes.Count < NewLine.Length)
+                    continue;
 
-		}
-
-		public string NewLine { get; set; }
+                bool foundNewLine = true;
+                for (int i = 0; i < NewLine.Length; i++)
+                    if (bytes[bytes.Count - i - 1] != newLineCharArray[NewLine.Length - i - 1])
+                    {
+                        foundNewLine = false;
+                        break;
+                    }
+                if (foundNewLine)
+                    return System.Text.Encoding.Default.GetString(bytes.ToArray(), 0, bytes.Count - NewLine.Length);
+            }
+        }
 
         /// <summary>
         /// Run asynchronous operation.
@@ -167,12 +171,11 @@ namespace SerialPortNET
                 return;
 
             bgWorker.DoWork += new DoWorkEventHandler(BgWorker_DoWork);
-			bgWorker.RunWorkerCompleted += BgWorker_RunWorkerCompleted;
+            bgWorker.RunWorkerCompleted += BgWorker_RunWorkerCompleted;
             bgWorker.RunWorkerAsync();
 
             IsRunning = true;
         }
-			
 
         /// <summary>
         /// Stop the asynchronous operation.
@@ -245,19 +248,24 @@ namespace SerialPortNET
         #region Private Methods
 
         private void BgWorker_DoWork(object sender, DoWorkEventArgs e)
-        {           
+        {
             {
                 if (this.BytesToRead >= this.ReceivedBytesThreshold)
                 {
                     OnDataReceived();
                 }
-			}
+            }
         }
 
-		private void BgWorker_RunWorkerCompleted (object sender, RunWorkerCompletedEventArgs e)
-		{
-			(sender as BackgroundWorker).RunWorkerAsync();
-		}
+        private void BgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            (sender as BackgroundWorker).RunWorkerAsync();
+        }
+
+        public void Flush(FlushMode mode = FlushMode.InputOutput)
+        {
+            lowLevelSerialPort.Flush(mode);
+        }
 
         #endregion Private Methods
 
@@ -316,6 +324,8 @@ namespace SerialPortNET
         /// </summary>
         public bool IsRunning { get; set; }
 
+        public string NewLine { get; set; }
+
         /// <summary>
         /// Gets or sets the parity-checking protocol.
         /// </summary>
@@ -339,6 +349,9 @@ namespace SerialPortNET
         #endregion Public Properties
 
         #region Private Fields
+
+        private static ConstructorInfo serialConstructor;
+        private static ILowLevelSerialPort tempSerialPort;
 
         // For asynchronous operation
         private BackgroundWorker bgWorker = new BackgroundWorker();
