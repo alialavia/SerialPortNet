@@ -16,15 +16,19 @@ namespace TestSerialPort
 	{
 		public static void Main (string[] args)
 		{
-			// Used for performance measurement
-			
+            // Used for performance measurement
+
             /* 
 			DateTime t;
 			TimeSpan s;
 			t = DateTime.Now;
 			*/
-
-			var sp = new SerialPort("COM18", 115200, Parity.None, 8, StopBits.One);
+            ISerialPort sp;
+            int mode = 1;
+            if (mode == 1)            
+                sp = (ISerialPort)new System.IO.Ports.SerialPort("COM18", 115200, (System.IO.Ports.Parity)Parity.None, 8, (System.IO.Ports.StopBits)StopBits.One);
+            else
+                sp = new SerialPort("COM18", 115200, Parity.None, 8, StopBits.One);
 
             sp.DataReceived += (object sender, SerialDataReceivedEventArgs e) => {
 				var b = sp.ReadAll();

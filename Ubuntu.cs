@@ -68,9 +68,9 @@ namespace SerialPortNET
 
 		[DllImport ("libc.so.6")]
 		public static extern int fcntl(int fd, int cmd, int arg);
-	}		
+	}
 
-	public static class Macros
+    internal static class Macros
 	{
 		private static MacroHelper macroHelper = new MacroHelper(typeof( Macros), new String[]{"termios.h", "unistd.h", "sys/ioctl.h", "fcntl.h"}); 
 		public static int ICANON {get { return macroHelper.GetMacro(); }}
