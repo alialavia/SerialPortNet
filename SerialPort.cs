@@ -13,7 +13,35 @@ namespace SerialPortNET
     public class SerialPort : ISerialPort
     {
         #region Public Constructors
+        /// <summary>
+        /// Enumerate all the serial ports and their respected device name by accessing the registry.
+        /// </summary>
+        /// <returns>A dictionary containing device names (e.g. USBSER000, Serial1, ...) and port names (e.g. COM1, COM20, ...), as keys and values respectively. </returns>
+        public static Dictionary<String, String> EnumerateSerialPorts()
+        {
+            var res = new Dictionary<String, String>();
+            switch (Helper.RunningPlatform)
+            {
+                case Platform.Windows:
+                    const string keyname = @"HARDWARE\DEVICEMAP\SERIALCOMM";
+                    var keys = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(keyname);
+                    var valueNames = keys.GetValueNames();
 
+                    foreach (var k in valueNames)
+                    {
+                        res.Add(k, keys.GetValue(k) as String);
+                    }
+                    break;
+
+                case Platform.Linux:
+                    throw new NotImplementedException();
+                case Platform.Mac:
+                    throw new NotImplementedException();
+                default:
+                    throw new NotImplementedException();
+            }
+            return res;
+        }
         /// <summary>
         /// This will create a temporary serial port depending on the operating system.
         /// It also finds the related constructor to call it from <see cref="SerialPort"/> constructor.
@@ -30,15 +58,18 @@ namespace SerialPortNET
                     tempSerialPort = new SerialPortPOSIX();
                     break;
 
-                case Platform.Mac:
-                    throw new NotImplementedException();
                 default:
-                    throw new NotImplementedException();
+                    if (PlatformSpecificImplementation == null)
+                        throw new NotImplementedException("SerialPort not implemented for " + Helper.RunningPlatform.ToString());
+                    tempSerialPort = PlatformSpecificImplementation.Invoke(Helper.RunningPlatform);
+                    break;
             }
-            serialConstructor = (tempSerialPort.GetType()).GetConstructor(new Type[] {
-                typeof(string), typeof(int), typeof(Parity), typeof(byte), typeof(StopBits) });
+            //serialConstructor = (tempSerialPort.GetType()).GetConstructor(new Type[] {
+             //   typeof(string), typeof(int), typeof(Parity), typeof(byte), typeof(StopBits) });
         }
-
+        public static HandleUnimplementedPlatforms PlatformSpecificImplementation;
+        public delegate ILowLevelSerialPort HandleUnimplementedPlatforms(Platform p);
+        
         public string ReadExisting()
         {
             return Encoding.ASCII.GetString(ReadAll());
@@ -55,11 +86,15 @@ namespace SerialPortNET
         public SerialPort(string portName, int baudRate, Parity parity, byte dataBits, StopBits stopBits)
         {
             NewLine = "\r\n";
-            lowLevelSerialPort =
-                (ILowLevelSerialPort)serialConstructor
-                .Invoke(new object[] { portName, baudRate, parity, dataBits, stopBits });
+            lowLevelSerialPort = tempSerialPort;
+            lowLevelSerialPort.PortName = portName;
+            lowLevelSerialPort.BaudRate = baudRate;
+            lowLevelSerialPort.Parity = parity;
+            lowLevelSerialPort.DataBits = dataBits;
+            lowLevelSerialPort.StopBits = stopBits;                
         }
 
+        public SerialPort() : this("COM1", 115200, Parity.Even, 8, StopBits.Two) { }
         #endregion Public Constructors
 
         #region Public Methods
@@ -350,7 +385,7 @@ namespace SerialPortNET
 
         #region Private Fields
 
-        private static ConstructorInfo serialConstructor;
+        //private static ConstructorInfo serialConstructor;
         private static ILowLevelSerialPort tempSerialPort;
 
         // For asynchronous operation

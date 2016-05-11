@@ -3,11 +3,12 @@ using System.IO;
 
 namespace SerialPortNET
 {
-    internal enum Platform
+    public enum Platform
     {
         Windows,
         Linux,
-        Mac
+        Mac,
+        Android
     }
 
     internal static class Helper
@@ -35,8 +36,10 @@ namespace SerialPortNET
                         & Directory.Exists("/Users")
                         & Directory.Exists("/Volumes"))
                         return Platform.Mac;
-                    else
-                        return Platform.Linux;
+                    else if (File.Exists("/system/build.prop"))
+                        return Platform.Android;
+
+                    return Platform.Linux;
 
                 case PlatformID.MacOSX:
                     return Platform.Mac;
@@ -60,12 +63,4 @@ namespace SerialPortNET
 
         #endregion Private Fields
     }
-}
-
-// you need this once (only), and it must be in this namespace
-namespace System.Runtime.CompilerServices
-{
-    [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class
-         | AttributeTargets.Method)]
-    public sealed class ExtensionAttribute : Attribute { }
 }
